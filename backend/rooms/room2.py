@@ -208,7 +208,7 @@ def submit_label():
         resp.update({
             "status": "success",
             "message": (
-                f"IMF says: You located the submarine pattern. "
+                f"IMF says: You located the submarine pattern.Go Down! "
                 f"(p={p_succ:.2f}, coverage={len(cats)})"
             ),
             "next": url_for('static', filename='images/image13.jpg'),
