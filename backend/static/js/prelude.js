@@ -72,7 +72,7 @@ if (typeof window.faceapi === "undefined") {
     { inputSize: 512, scoreThreshold: 0.10 },
     { inputSize: 416, scoreThreshold: 0.08 },
   ];
-  let detRaw = null;
+ /* let detRaw = null;
   for (const p of passes) {
     try {
       const d = await faceapi
@@ -80,7 +80,28 @@ if (typeof window.faceapi === "undefined") {
         .withFaceLandmarks();
       if (d && d.landmarks) { detRaw = d; break; }
     } catch {}
+  } */
+  let detRaw = null;
+for (const p of passes) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const d = await faceapi
+        .detectSingleFace(sceneImg, new faceapi.TinyFaceDetectorOptions(p))
+        .withFaceLandmarks();
+
+      if (d && d.landmarks) {
+        detRaw = d;
+        break;
+      }
+    } catch {}
+
+    await new Promise(r => setTimeout(r, 250));
   }
+
+  if (detRaw) break;
+}
+
+
   if (!detRaw) {
     statusEl.textContent = "AI couldn’t confirm eye positions. Try again.";
     hintEl.style.display = "inline";
