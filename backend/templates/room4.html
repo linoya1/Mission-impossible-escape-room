@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Room 4 — Submarine Core / The Entity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="room4-bg">
+  <div class="hud">
+    <h1 class="title">Room 4 — Submarine Core</h1>
+    <p class="subtle">
+      You breach the lower deck. The <b>Entity</b> has infected the systems. Your mission is to extract it before it causes further damage.
+      LIDAR-like scans will help you gather the right components; the IMF device will then reveal a coded payload.
+      Choose the correct private key to decrypt it with <b>RSA</b> and uncover how to stop the Entity.
+    </p>
+  </div>
+
+  <div class="hud">
+    <h2 class="title" style="font-size:28px">1) LIDAR scan — gather objects</h2>
+
+    <div class="lidar-wrap">
+      <!-- שמאל: קנבס/סונאר -->
+      <div class="panel">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+          <div id="led" class="led"></div>
+          <span class="pill">LIDAR subsystem</span>
+        </div>
+
+        <div class="canvas-frame">
+          <canvas id="lidarCanvas" width="800" height="380"></canvas>
+          <div class="grid-overlay"></div>
+          <div class="sonar-glow"></div>
+        </div>
+
+        <div style="margin-top:10px">
+          <button id="btnScan">Run LIDAR scan</button>
+          <span id="scanOut" class="pill" style="margin-left:10px">idle</span>
+        </div>
+      </div>
+
+      <!-- ימין: אובייקטים עם תמונות -->
+      <div class="panel">
+        <div style="margin-bottom:10px"><span class="pill">Select any objects you “scanned” in the bay:</span></div>
+        <div class="objects">
+          <div class="obj-card">
+            <label>
+              <input type="checkbox" class="obj" value="console">
+              <img src="{{ url_for('static', filename='images/obj_console.jpg') }}"
+                   alt="Console"
+                   onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2244%22 height=%2244%22><rect width=%2244%22 height=%2244%22 fill=%22%230a1621%22/><text x=%2250%25%22 y=%2252%25%22 fill=%22%23bfe%22 font-size=%2210%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>console</text></svg>'">
+              Console
+            </label>
+          </div>
+
+          <div class="obj-card">
+            <label>
+              <input type="checkbox" class="obj" value="rack">
+              <img src="{{ url_for('static', filename='images/obj_rack.jpg') }}"
+                   alt="Server Rack"
+                   onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2244%22 height=%2244%22><rect width=%2244%22 height=%2244%22 fill=%22%230a1621%22/><text x=%2250%25%22 y=%2252%25%22 fill=%22%23bfe%22 font-size=%2210%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>rack</text></svg>'">
+              Server Rack
+            </label>
+          </div>
+
+          <div class="obj-card">
+            <label>
+              <input type="checkbox" class="obj" value="sensor">
+              <img src="{{ url_for('static', filename='images/obj_sensor.jpg') }}"
+                   alt="Sensor Array"
+                   onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2244%22 height=%2244%22><rect width=%2244%22 height=%2244%22 fill=%22%230a1621%22/><text x=%2250%25%22 y=%2252%25%22 fill=%22%23bfe%22 font-size=%2210%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>sensor</text></svg>'">
+              Sensor Array
+            </label>
+          </div>
+
+          <div class="obj-card">
+            <label>
+              <input type="checkbox" class="obj" value="cables">
+              <img src="{{ url_for('static', filename='images/obj_cables.jpg') }}"
+                   alt="Cables"
+                   onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2244%22 height=%2244%22><rect width=%2244%22 height=%2244%22 fill=%22%230a1621%22/><text x=%2250%25%22 y=%2252%25%22 fill=%22%23bfe%22 font-size=%2210%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>cables</text></svg>'">
+              Cables
+            </label>
+          </div>
+
+          <div class="obj-card">
+            <label>
+              <input type="checkbox" class="obj" value="toolkit">
+              <img src="{{ url_for('static', filename='images/obj_toolkit.jpg') }}"
+                   alt="Toolkit"
+                   onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2244%22 height=%2244%22><rect width=%2244%22 height=%2244%22 fill=%22%230a1621%22/><text x=%2250%25%22 y=%2252%25%22 fill=%22%23bfe%22 font-size=%2210%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>toolkit</text></svg>'">
+              Toolkit
+            </label>
+          </div>
+        </div>
+      </div>
+          <!-- Atmosphere strip: submarine photo -->
+    <div class="panel">
+      <div class="sub-photo">
+        <img src="{{ url_for('static', filename='images/for_room41.jpg') }}"
+             alt="Ethan in the flooded chamber">
+      </div>
+    </div>
+    </div>
+
+    <h2 class="title" style="font-size:28px; margin-top:18px">2) RSA — pick the private key</h2>
+    <div id="keys" class="panel"></div>
+    <p><button id="btnTry" disabled>Try decrypt</button></p>
+
+    <div class="panel" style="margin-top:10px">
+      <h3>Payload</h3>
+      <p>Encrypted bytes (per char): <span id="cipher"></span></p>
+      <p>Decrypted (symbols): <code id="sym"></code></p>
+      <p>Decoded (IMF device): <code id="dec"></code></p>
+      <p id="status"></p>
+       <!-- לינק שסוגר חדר 4 דרך השרת (ישמר progress ואז יעביר ל /me) -->
+      <p>
+        <a id="finish" class="btn-next" href="{{ url_for('room_success', room_id=4) }}" style="display:none;">
+          Finish mission »
+        </a>
+      </p>
+
+      <!-- אופציונלי: קישור לסיכום -->
+      <p><a href="{{ url_for('my_summary') }}">My progress</a></p>
+    </div>
+  </div>
+
+
+
+
+  <script>
+    const btnScan = document.getElementById('btnScan');
+    const btnTry = document.getElementById('btnTry');
+    const scanOut = document.getElementById('scanOut');
+    const keysEl = document.getElementById('keys');
+    const cipherEl = document.getElementById('cipher');
+    const symEl = document.getElementById('sym');
+    const decEl = document.getElementById('dec');
+    const statusEl = document.getElementById('status');
+    const led = document.getElementById('led');
+    const finishLink = document.getElementById('finish');
+
+    let chosenKey = null;
+
+    async function postJson(url, body) {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(body||{})
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    }
+
+    // ציור סונאר/עומק
+    (function(){
+      const canvas = document.getElementById('lidarCanvas');
+      const ctx = canvas.getContext('2d');
+      let rot = 0;
+      function draw(){
+        const w=canvas.width, h=canvas.height;
+        ctx.clearRect(0,0,w,h);
+
+        const grd = ctx.createLinearGradient(0,0,w,h);
+        grd.addColorStop(0,'#07141d'); grd.addColorStop(1,'#0a1c2a');
+        ctx.fillStyle = grd; ctx.fillRect(0,0,w,h);
+
+        ctx.strokeStyle = '#144059'; ctx.globalAlpha = .55;
+        for (let i=80;i<=400;i+=60){
+          ctx.beginPath(); ctx.arc(w*0.5, h*0.6, i, 0, Math.PI*2); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+
+        const ang = (rot%360) * Math.PI/180;
+        const cx=w*0.5, cy=h*0.6, rad=Math.min(w,h)*0.55;
+        ctx.save();
+        const g2 = ctx.createRadialGradient(cx,cy, rad*0.1, cx,cy, rad);
+        g2.addColorStop(0, 'rgba(0,255,200,0.22)');
+        g2.addColorStop(1, 'rgba(0,255,200,0.00)');
+        ctx.fillStyle = g2;
+        ctx.beginPath(); ctx.moveTo(cx,cy);
+        ctx.arc(cx,cy, rad, ang-0.18, ang+0.18);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+
+        rot += 1.4;
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    btnScan.addEventListener('click', async () => {
+      try {
+        led.classList.add('active');
+        scanOut.textContent = 'scanning...';
+        const objs = Array.from(document.querySelectorAll('.obj:checked')).map(x=>x.value);
+        const data = await postJson('/api/room4/lidar_scan', {objects: objs});
+
+        scanOut.textContent = 'objects: ' + (data.objects.join(', ') || '—');
+        cipherEl.textContent = '[' + data.cipher.join(', ') + ']';
+
+        // render key options (ניתן להחליף בחירה כמה שרוצים)
+        keysEl.innerHTML = '';
+        data.key_options.forEach(k => {
+          const el = document.createElement('label');
+          el.style.marginRight = '12px';
+          el.innerHTML = `<input type="radio" name="key" value="${k.id}"> Key ${k.id} (n=${k.n})`;
+          keysEl.appendChild(el);
+        });
+        keysEl.onchange = (e) => {
+          const t = e.target;
+          if (t && t.name === 'key') {
+            chosenKey = t.value;
+            btnTry.disabled = false;
+            statusEl.textContent = '';
+          }
+        };
+
+        symEl.textContent = '';
+        decEl.textContent = '';
+        statusEl.textContent = '';
+      } catch (e) {
+        statusEl.textContent = 'Error: '+e.message;
+        statusEl.className = 'bad';
+      } finally {
+        setTimeout(()=> led.classList.remove('active'), 700);
+      }
+    });
+
+    btnTry.addEventListener('click', async () => {
+      try {
+        if (!chosenKey) return;
+        const data = await postJson('/api/room4/rsa_try', { key_id: chosenKey });
+        symEl.textContent = data.symbol_text || '';
+        decEl.textContent = data.decoded_text || '';
+        if (data.success) {
+          statusEl.innerHTML = `<span class="ok">Success!</span> The Entity can be contained.`;
+            if (finishLink) finishLink.style.display = 'inline-block';
+
+        } else {
+          statusEl.innerHTML = `<span class="bad">Wrong key.</span> Try another.`;
+        }
+      } catch (e) {
+        statusEl.textContent = 'Error: '+e.message;
+        statusEl.className = 'bad';
+      }
+    });
+  </script>
+</body>
+</html>

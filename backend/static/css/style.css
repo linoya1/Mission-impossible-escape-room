@@ -1,0 +1,716 @@
+/* עיצוב מרכזי לתוכן */
+.content {
+    text-align: center;
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 10px;
+}
+
+/* תמונת הרקע של הדף */
+.image-container {
+    text-align: center;
+    margin-top: 20px;
+}
+.image-container img {
+    width: 100%;
+    max-width: 500px;  /* גודל מקסימלי לתמונה */
+    border-radius: 10px;
+}
+
+/* עיצוב תמונות החידה */
+#image-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+.game-image {
+    width: 350px;   /* הגדלתי את הרוחב */
+    height: 250px;  /* שמירה על גובה סביר */
+    object-fit: cover; /* מבטיח שהתמונה לא תתעוות */
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.3s ease, border 0.3s ease;
+}
+.game-image:hover { transform: scale(1.1); } /* מגדיל מעט את התמונה בהובר */
+.game-image.selected { border: 5px solid red; } /* סימון התמונות שנבחרו */
+
+/* עיצוב כפתורים (כללי) */
+button {
+    padding: 12px 25px;
+    font-size: 18px;
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+button:hover { background-color: darkred; }
+
+/* התאמה למובייל */
+@media (max-width: 768px) {
+  .game-image {
+      width: 300px;
+      height: 200px;
+  }
+}
+
+/* ========= Room 4 ========= */
+/* רקע “צוללת במעמקים” */
+.room4-bg {
+  min-height: 100vh;
+  margin: 0;
+  color: #e8f3ff;
+  font-family: Inter, Arial, sans-serif;
+  background: #050b12 url("/static/images/bg_submarine.jpg") center/cover no-repeat fixed;
+  overflow-x: hidden;
+}
+
+/* כרטיסי תוכן */
+.hud {
+  max-width: 1040px;
+  margin: 20px auto;
+  padding: 18px;
+  background: rgba(8,14,22,0.72);
+  border: 1px solid #142232;
+  border-radius: 14px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.35) inset, 0 10px 30px rgba(0,0,0,0.25);
+  backdrop-filter: blur(3px);
+}
+.title {
+  font-size: 38px;
+  margin: 12px auto 8px;
+  letter-spacing: .5px;
+  text-shadow: 0 0 12px rgba(74,180,255,0.25);
+}
+.subtle { opacity:.9 }
+
+/* גריד: סונאר משמאל, אובייקטים מימין */
+/* .lidar-wrap { display:grid; grid-template-columns: 440px 1fr; gap: 18px; align-items:start; }
+/* @media (max-width: 980px){ .lidar-wrap { grid-template-columns: 1fr; } }
+/* גריד Room 4 – תמיד נכנס לרוחב המסך ושורות טקסט ארוכות יותר */
+
+
+
+.room4-bg .lidar-wrap{
+  display: grid;
+  grid-template-columns: minmax(520px, 48vw) 1fr; /* עמודה שמאלית רחבה */
+  gap: 18px;
+  align-items: start;
+
+  /* הגבלות רוחב בטוחות + מיקום מרכזי */
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+@media (max-width: 1100px){
+  .room4-bg .lidar-wrap{ grid-template-columns: 1fr; }
+}
+
+.panel {
+  background:#0a1621;
+  border:1px solid #153347;
+  border-radius:12px;
+  padding:14px;
+  position:relative;
+}
+
+/* כפתורים/תגיות */
+button { padding:10px 14px; border-radius:10px; border:1px solid #2b556e; background:#0e2534; color:#dff7ff; cursor:pointer }
+button:hover{ filter:brightness(1.12) }
+.pill { display:inline-block; padding:5px 10px; border-radius:1000px; background:#0e2534; border:1px solid #2b556e; }
+
+/* נורית חיווי */
+.led { width:10px; height:10px; border-radius:50%; background:#2a3f4f; box-shadow:0 0 6px rgba(0,255,170,0.25); display:inline-block; }
+.led.active { background:#00e0ad; box-shadow:0 0 10px #00e0ad; }
+
+/* קנבס + שכבות */
+.canvas-frame { position:relative; border-radius:12px; overflow:hidden; border:1px solid #173449; }
+#lidarCanvas { width:100%; height:380px; display:block; background:#061017; }
+.grid-overlay {
+  position:absolute; inset:0; background-image:
+    linear-gradient(#10263480 1px, transparent 1px),
+    linear-gradient(90deg, #10263480 1px, transparent 1px);
+  background-size: 28px 28px, 28px 28px;
+  pointer-events:none;
+}
+.sonar-glow { position:absolute; inset:-20%; background: radial-gradient(closest-side, #00ffbf22, transparent 70%); mix-blend-mode:screen; animation:pulse 3s infinite; pointer-events:none; opacity:.5; }
+@keyframes pulse { 0%{opacity:.15} 50%{opacity:.45} 100%{opacity:.15} }
+
+/* קלפים של האובייקטים */
+.objects { display:grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap:12px; }
+.obj-card {
+  display:flex; align-items:center; gap:10px; padding:10px; border:1px solid #1c3a50; border-radius:12px;
+  background:linear-gradient(180deg, #0d1c29, #0a1621); box-shadow:inset 0 0 24px rgba(0,255,170,0.03);
+}
+.obj-card img { width:44px; height:44px; object-fit:contain; filter: drop-shadow(0 0 4px #00ffc21f); }
+.obj-card label { display:flex; align-items:center; gap:8px; cursor:pointer; width:100%; }
+.obj-card input { transform:scale(1.2); accent-color:#00d1a3; }
+
+/* קוד/תוצאות */
+code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px solid #173449 }
+.ok { color:#45f7c1; font-weight: 700 }
+.bad { color:#ff8484; font-weight: 700 }
+
+
+/* ========= Room 3 ========= */
+/* מכולת החדר */
+.room--descent {
+  position: relative;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+/* שכבות רקע */
+.bg { position: absolute; inset: 0; pointer-events: none; }
+
+/* ים + נושאת מטוסים */
+.bg--sea {
+  z-index: 0;
+  background: url("/static/images/bg_carrier_sea.jpg") right bottom / cover no-repeat;
+  filter: saturate(1.05) contrast(1.03) brightness(.92);
+}
+
+/* שמיים + תמונת מטוס רוסי כרקע (שכבה אחת מאוחדת) */
+.bg--sky {
+  position: absolute;
+  inset: 0;
+  z-index: 1;           /* מעל הים, מתחת לתוכן */
+  pointer-events: none;
+  opacity: .85;
+
+  /* שכבה 1: הילה; שכבה 2: גרדיאנט שמיים; שכבה 3: תמונת המטוס */
+  background-image:
+    radial-gradient(900px 450px at 65% 12%, rgba(230,245,255,.14), rgba(0,0,0,0) 60%),
+    linear-gradient(to bottom, rgba(30,55,90,.22), rgba(0,0,0,0) 60%, rgba(0,0,0,.28)),
+    url("/static/images/jet_reference_1.jpg");
+
+  background-repeat: no-repeat, no-repeat, no-repeat;
+
+  /* מיקומים – המטוס בצד ימין למעלה; התאימי offset אם הוא מתנגש ב-HUD */
+  background-position:
+    65% 12%,
+    0% 0%,
+    right 16px top 16px;
+
+  /* גדלים – המטוס ~260px רוחב; שאר שכבות בגודל אוטומטי */
+  background-size:
+    auto,
+    auto,
+    260px;
+}
+
+/* במסכים צרים: המטוס קטן וקצת מתחת לכותרת */
+@media (max-width: 900px){
+  .bg--sky{
+    background-position:
+      65% 12%,
+      0% 0%,
+      right 12px top 72px;
+    background-size:
+      auto,
+      auto,
+      200px;
+  }
+}
+
+/* מטוס אויב – סילואטה אנימטיבית (נשאר אצלך אם תרצי) */
+.enemy-jet {
+  position: absolute;
+  top: 12%;
+  left: -20%;
+  width: min(26vw, 360px);
+  height: auto;
+  z-index: 4;
+  animation: jetPass 14s linear infinite;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.5));
+}
+.enemy-jet__svg { width: 100%; height: auto; fill: rgba(220,230,255,.9); }
+.enemy-jet__mark { fill: #e53935; stroke: #ff9f9f; stroke-width: 2; opacity: .95; }
+@keyframes jetPass {
+  0%   { transform: translateX(0) translateY(0) rotate(-4deg); opacity: .85; }
+  30%  { transform: translateX(55vw) translateY(-2vh) rotate(-2deg); }
+  60%  { transform: translateX(105vw) translateY(1vh) rotate(0deg); opacity: .9; }
+  61%  { opacity: 0; }
+  100% { transform: translateX(0); opacity: 0; }
+}
+
+/* HUD של Room 3 (הקופסה בפינה) */
+.room--descent .hud {
+  position: absolute;
+  right: 1.2rem; top: 1.2rem;
+  width: 210px;
+  background: rgba(10,14,18,.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid #1e2a35;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  color: #d8e6f5;
+  z-index: 6;
+}
+.hud__title {
+  font-weight: 700; letter-spacing: .5px;
+  padding: .55rem .75rem .35rem;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.hud__radar {
+  position: relative;
+  margin: .6rem auto; width: 140px; height: 140px;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(0,255,180,.18), rgba(0,0,0,0) 68%),
+    repeating-radial-gradient(circle at 50% 50%,
+      rgba(0,255,180,.12) 0 2px, rgba(0,0,0,0) 2px 12px);
+  overflow: hidden;
+}
+.hud__sweep {
+  position: absolute; inset: 0;
+  background: conic-gradient(from 0deg, rgba(0,255,180,.4), rgba(0,0,0,0) 40%);
+  animation: sweep 2.6s linear infinite;
+  mix-blend-mode: screen;
+}
+@keyframes sweep { to { transform: rotate(360deg); } }
+.hud__meta {
+  display: grid; gap: .25rem;
+  padding: 0 .8rem .7rem;
+  font-size: .82rem; color: #b8c6d6;
+  opacity: .95;
+}
+
+/* כרטיסי הטקסט/טפסים – ליפט */
+.room--descent .card, .room--descent .panel, .room--descent textarea {
+  background: rgba(12,16,20,.85) !important;
+  border: 1px solid #1f2a34 !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35) !important;
+  color: #e8f0f6 !important;
+}
+.room--descent h1, .room--descent h2 {
+  text-shadow: 0 2px 14px rgba(0,255,180,.12);
+}
+
+
+/* ===== Room 3: Russian jet photo overlay with fallback (no HTML changes) ===== */
+.room--descent { position: relative; }
+
+/* תיבה בפינה הימנית-עליונה עם רקע: קודם תמונת ה-JPG שלך, ואם לא נטענת — SVG של מטוס */
+.room--descent::after{
+  content: "";
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 260px;
+  height: 160px;
+  z-index: 50;               /* מעל הרקעים וה-HUD */
+  pointer-events: none;
+  border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.35);
+
+  /* שכבה 1: ניסיון לטעון את הקובץ שלך
+     שכבה 2: גיבוי – SVG של מטוס, כדי שתמיד תראי משהו */
+  background-image:
+    url("/static/images/jet_reference_1.jpg"),
+    url('data:image/svg+xml;utf8,\
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 140">\
+<rect width="300" height="140" fill="%230b1a28"/>\
+<path d="M10,75 L110,70 L150,50 L180,30 L200,32 L210,45 L235,50 L285,70 L235,90 L210,95 L200,108 L180,110 L150,90 L110,70 L10,65 Z" fill="%23dce6ff"/>\
+<circle cx="205" cy="60" r="7" fill="%23e53935" stroke="%23ff9f9f" stroke-width="2"/>\
+</svg>');
+
+  /* למקם ולגודל כל שכבה בנפרד */
+  background-repeat: no-repeat, no-repeat;
+  background-position: center, center;          /* שתיהן במרכז התיבה */
+  background-size: cover, contain;              /* התמונה מכסה; ה-SVG נכנס למסגרת */
+}
+
+/* במסכים צרים – נקטין מעט */
+@media (max-width: 900px){
+  .room--descent::after{
+    width: 200px;
+    height: 120px;
+    top: 72px;
+    right: 12px;
+  }
+}
+
+/* ==== ROOM 2 — Mission Impossible Skin ==== */
+
+/* מעט וינייט + רקע תת-ימי */
+.room--detect {
+  background: #031019 url("/static/images/water_dark.jpg") center/cover no-repeat fixed;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+.room--detect::before { /* וינייט קולנועית */
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 700px at 50% 20%, rgba(0,0,0,0.0), rgba(0,0,0,0.55)),
+    linear-gradient(to bottom, rgba(1,10,18,0.65), rgba(1,10,18,0.2) 40%, rgba(1,10,18,0.75));
+  z-index: 0;
+}
+
+.room2-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 20px 90px;
+  position: relative; z-index: 1;
+  color: #dfefff;
+}
+
+/* כותרת קולנועית */
+.room2-title {
+  font-size: clamp(30px, 4.2vw, 52px);
+  line-height: 1.05;
+  letter-spacing: .3px;
+  margin: 6px 0 14px;
+  text-shadow: 0 8px 30px rgba(0,0,0,.6);
+}
+.room2-sub {
+  opacity: .9;
+  margin-bottom: 18px;
+  font-size: 18px;
+}
+
+/* פס מידע עליון (p(success), כפתור Reset וכו') */
+.room2-hud {
+  display: flex; flex-wrap: wrap; gap: 14px 18px;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1px solid rgba(140,200,255,.18);
+  background: linear-gradient(180deg, rgba(10,22,35,.55), rgba(10,22,35,.35));
+  backdrop-filter: blur(6px);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+/* תגיות (harbor, night_ops...) */
+.tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 999px;
+  background: rgba(20,160,255,.14);
+  border: 1px solid rgba(120,190,255,.25);
+  font-size: 13px; color: #cfeaff;
+}
+
+/* גריד של התמונות */
+.detect-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 22px;
+  margin-top: 18px;
+}
+
+/* כרטיס תמונה דרמטי */
+.img-card {
+  grid-column: span 6;           /* 2 בעמודה במסכים גדולים */
+  background: rgba(4,14,24,.5);
+  border: 1px solid rgba(120,190,255,.16);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0,0,0,.35);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.img-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(140,210,255,.35);
+  box-shadow: 0 28px 70px rgba(0,0,0,.45);
+}
+.img-card img {
+  width: 100%; height: 280px; object-fit: cover;
+  display: block; filter: saturate(1.15) contrast(1.05);
+}
+.img-card .img-actions {
+  display: flex; gap: 12px; padding: 12px 14px 16px;
+  background: linear-gradient(180deg, rgba(5,15,24,.3), rgba(5,15,24,.75));
+  border-top: 1px solid rgba(120,190,255,.12);
+}
+
+/* כפתורים */
+.btn-mi {
+  appearance: none; border: 1px solid transparent;
+  background: #0e2738; color: #e5f4ff;
+  padding: 10px 14px; border-radius: 12px;
+  font-weight: 600; letter-spacing: .2px;
+  box-shadow: 0 7px 22px rgba(0,0,0,.25) inset, 0 10px 24px rgba(0,0,0,.25);
+  transition: transform .15s ease, background .2s ease, border-color .2s ease;
+}
+.btn-mi:hover { transform: translateY(-1px); border-color: #54b0ff; }
+.btn-mi.positive { background: linear-gradient(180deg, #093c4f, #0a2d41); border-color: rgba(84,176,255,.35); }
+.btn-mi.negative { background: linear-gradient(180deg, #261b20, #171118); border-color: rgba(255,84,120,.28); }
+
+/* רספונסיביות */
+@media (max-width: 980px){
+  .img-card{ grid-column: span 12; }
+  .img-card img{ height: 240px; }
+}
+
+/* ========= Room 1 ========= */
+/* רקע קרמלין */
+.room1-bg {
+  min-height: 100vh;
+  margin: 0;
+  color: #fff;
+  font-family: Inter, Arial, sans-serif;
+  background: #050b12 url("/static/images/kremlin.jpg") center/cover no-repeat fixed;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.room1-wrap {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.room1-title {
+  font-size: clamp(28px, 4vw, 52px);
+  margin: 12px 0;
+  text-shadow: 0 8px 28px rgba(0,0,0,0.6);
+}
+
+.room1-sub {
+  opacity: 0.95;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+/* תמונת הקרמלין המופצץ */
+#kremlin-boom {
+  display: none;           /* מוסתרת עד שנחשפים */
+  margin-top: 20px;
+  max-width: 600px;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+}
+
+/* טקסט שחור עבור Room 1 */
+.room1-bg h1,
+.room1-bg p,
+.room1-bg #result-message {
+  color: black !important;
+  text-shadow: none !important; /* אם יש צל קודם שמפריע */
+}
+
+
+.scene-container { position: relative; }
+#overlay-canvas {
+  position: absolute;
+  left: 0; top: 0;
+  pointer-events: auto;
+  z-index: 5;
+}
+
+
+/* ===== Opening / Index page ===== */
+body.landing-index {
+  background: #000;
+  color: #eaf2ff;
+  font-family: Inter, Arial, sans-serif;
+}
+
+/* היה: object-fit: cover;  → חותך */
+.hero-img{
+  width: 100%;
+  height: auto;          /* נותן לתמונה את הגובה הטבעי לפי היחס שלה */
+  display: block;
+  object-fit: contain;   /* מצמצם במקום לחתוך */
+  background: #000;      /* פסי שחור דקים אם היחס לא תואם */
+  /* אופציונלי: תוסיפי צל קטן אם בא לך */
+  filter: contrast(1.05) saturate(1.05) brightness(.98);
+}
+
+/* אפשר לבטל את ההגבלה הקודמת על גובה מקסימלי */
+.hero-banner{
+  position: relative;
+  width: 100%;
+  /* היה max-height: ...  -> להסיר כדי שלא יקצץ גובה */
+  border-bottom: 1px solid rgba(140,200,255,.14);
+  box-shadow: 0 12px 40px rgba(0,0,0,.6);
+  overflow: hidden; /* שומר קצוות נקיים */
+}
+
+.hero-overlay {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(1200px 600px at 30% 20%, rgba(255,140,0,.08), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.55));
+  pointer-events: none;
+}
+
+/* Card wrapper (ממחזרת את ה-.content שלך ומעדנת) */
+.card {
+  max-width: 900px;
+  margin: 26px auto;
+  background: rgba(0,0,0,.78);
+  border: 1px solid rgba(140,200,255,.18);
+  border-radius: 14px;
+  box-shadow: 0 14px 44px rgba(0,0,0,.45);
+}
+.card h1 { margin-top: 6px; }
+
+/* טופס התחל משחק */
+.start-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+.start-form input[type="text"]{
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(140,200,255,.22);
+  background: rgba(5,15,25,.75);
+  color: #eaf6ff;
+}
+.start-form button{
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(94,198,255,.22);
+  background: #0b2433;
+  color: #eaf6ff;
+  cursor: pointer;
+  transition: filter .2s ease, transform .06s ease, border-color .2s ease;
+}
+.start-form button:hover{ filter: brightness(1.08); border-color: rgba(94,198,255,.45); }
+.start-form button:active{ transform: translateY(1px); }
+
+@media (max-width: 640px){
+  .start-form { grid-template-columns: 1fr; }
+}
+
+/* Masonry-like grid (תפזורת) בלי JS */
+.mi-grid{
+  max-width: 1100px;
+  margin: 18px auto 40px;
+  padding: 0 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.mi-tile{
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(140,200,255,.16);
+  background: rgba(5,15,25,.6);
+  box-shadow: 0 14px 44px rgba(0,0,0,.45);
+  transition: transform .22s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.mi-tile img{
+  display:block; width:100%; height:100%;
+  object-fit: cover;
+  filter: saturate(1.08) contrast(1.03);
+}
+.mi-tile:hover{ transform: translateY(-2px); border-color: rgba(140,200,255,.35); box-shadow: 0 24px 64px rgba(0,0,0,.55); }
+
+/* וריאציות גובה/רוחב כדי לקבל תחושה של "תפזורת" */
+.mi-tile { height: 220px; }
+.mi-tile--tall { grid-row: span 2; height: 460px; }
+.mi-tile--wide { grid-column: span 2; }
+@media (max-width: 880px){
+  .mi-tile--wide { grid-column: span 1; }
+}
+
+/* תמונות עם original-size יוצגו בגודלן המקורי בלי חיתוך */
+.mi-tile img.original-size {
+  object-fit: contain;  /* במקום cover */
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.timer-section {
+  margin-top: 16px;
+  text-align: center;
+}
+
+#start-timer-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #0b2433;
+  color: #eaf6ff;
+  border: 1px solid rgba(94,198,255,.25);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+#start-timer-btn:hover {
+  background: #134b63;
+}
+
+#timer-display {
+  margin-left: 10px;
+  font-weight: bold;
+  color: #ffc628;
+}
+
+/* שימי זאת איפה שמוגדרות השורות של .start-form inputs */
+.start-form input[type="text"],
+.start-form input[type="password"]{
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(140,200,255,.22);
+  background: rgba(5,15,25,.75);
+  color: #eaf6ff;
+}
+.start-form input[type="text"]:focus,
+.start-form input[type="password"]:focus{
+  border-color: rgba(120,220,255,.55);
+  box-shadow: 0 0 0 3px rgba(120,220,255,.18);
+  outline: none;
+}
+
+/* Reusable button like "Proceed to Room 1" */
+.btn-next,
+.btn-next:visited {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #0f2330;
+  color: #eaf6ff;
+  text-decoration: none;
+  border: 1px solid #2b3f50;
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.btn-next:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0,0,0,.30);
+  background: #152c3a;
+}
+.btn-next:active { transform: translateY(0); }
+
+/* Reusable "next" button style */
+.btn-next,
+.btn-next:visited {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #0f2330;
+  color: #eaf6ff !important;
+  text-decoration: none !important;
+  border: 1px solid #2b3f50;
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.btn-next:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0,0,0,.30);
+  background: #152c3a;
+}
+.btn-next:active { transform: translateY(0); }

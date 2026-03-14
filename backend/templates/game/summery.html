@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mission Summary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin:0; padding:24px;
+      font-family: Arial, Helvetica, sans-serif;
+      background:#0b0b0b; color:#e8f0f6;
+    }
+    .wrap { max-width:900px; margin:0 auto; }
+    h1 { margin:0 0 16px; font-size:28px; }
+    .hero {
+      display:flex; gap:18px; align-items:center;
+      margin:10px 0 24px;
+    }
+    .hero img {
+      max-width:260px; border-radius:12px;
+      box-shadow:0 8px 22px rgba(0,0,0,.35);
+    }
+    .hero .text {
+      font-size:1.2rem; font-weight:bold;
+      color:#45f7c1;
+    }
+    table {
+      width:100%; border-collapse:collapse;
+      margin-top:12px;
+      background:#111820;
+      border:1px solid #1f2a34;
+      border-radius:10px;
+      overflow:hidden;
+    }
+    th, td {
+      padding:10px;
+      border-bottom:1px solid #1f2a34;
+      text-align:left;
+    }
+    th { background:#12202b; }
+    tr:last-child td { border-bottom:none; }
+    .ok { color:#45f7c1; font-weight:700 }
+    .bad { color:#ff8484; font-weight:700 }
+    a.btn {
+      display:inline-block; margin-top:18px;
+      padding:10px 14px; border-radius:10px;
+      border:1px solid #3a4a58;
+      background:#182028; color:#fff;
+      text-decoration:none;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Mission Summary</h1>
+    {% if finished %}
+    <div class="hero">
+      <img src="{{ url_for('static', filename='images/for_final.jpg') }}" alt="Tom Cruise found the key">
+      <div class="text">
+        You stopped the Entity! Well done.
+      </div>
+    </div>
+    {% endif %}
+    <h2>Your performance</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Room</th><th>Status</th><th>Attempts</th><th>Time (sec)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in items %}
+        <tr>
+          <td>{{ i.room }}</td>
+          <td>{{ i.status }}</td>
+          <td>{{ i.attempts }}</td>
+          <td>{{ '%.1f' % i.seconds if i.seconds else '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <a class="btn" href="{{ url_for('home') }}">Play again</a>
+  </div>
+</body>
+</html>

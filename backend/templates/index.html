@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Impossible Mission — Opening</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="landing-index">
+
+  <!-- Hero: הבאנר העליון עם open4 -->
+  <header class="hero-banner">
+    <img
+      src="{{ url_for('static', filename='images/open4.jpg') }}"
+      alt="MISSION: IMPOSSIBLE — THE FINAL RECKONING"
+      class="hero-img">
+    <div class="hero-overlay">
+      <!-- אם תרצי כותרת/כפתור על הבאנר – אפשר להוסיף פה -->
+    </div>
+  </header>
+
+  <!-- כרטיס הטקסט הקיים (לקחתי את התוכן שהיה לך) -->
+  <section class="content card">
+    <h1>Welcome to Impossible Mission</h1>
+    <p>
+      You are trapped in another installment of the <strong>Mission: Impossible</strong> series.
+      Time is running out and you have one hour to escape! <br>
+      Your mission, if you choose to accept it, is to <strong>escape from the Kremlin</strong>,
+      track down the lost submarine, and shadow enemy aircraft while
+        simultaneously making your way to the submarine Sevastopol.
+        Once aboard, decrypt its codes to recover the key and save humanity from the entity.
+    </p>
+
+    <p><strong>This message will self-destruct in 5 seconds.</strong></p>
+
+<form id="start-form" action="/start_game" method="POST" class="start-form">
+  <label for="player_name">Codename (username):</label>
+  <input type="text" id="player_name" name="player_name" required>
+
+  <label for="password">Passphrase (password):</label>
+  <input type="password" id="password" name="password" required>
+
+  {% if error %}
+    <div class="error" style="margin-top:8px;color:#ffb3b3">
+      {{ error }}
+    </div>
+  {% endif %}
+</form>
+
+<div class="timer-section">
+  <button id="start-timer-btn">Start 5-Second Timer</button>
+  <span id="timer-display"></span>
+</div>
+
+
+  </section>
+
+  <!-- גלריה “תפזורת” -->
+  <section class="mi-grid">
+    <!-- שימי כאן איזה תמונות שתרצי; הדוגמאות: -->
+    <figure class="mi-tile mi-tile--wide">
+      <img src="{{ url_for('static', filename='images/open1.jpg') }}" alt="Ghost Protocol – Burj Khalifa">
+    </figure>
+    <figure class="mi-tile">
+      <img src="{{ url_for('static', filename='images/open2.jpg') }}" alt="Kremlin mission directive screen">
+    </figure>
+    <figure class="mi-tile">
+      <img src="{{ url_for('static', filename='images/open3.jpg') }}" alt="Ethan Hunt in the server room">
+    </figure>
+  <figure class="mi-tile">
+    <img src="{{ url_for('static', filename='images/image1.png') }}" alt="Extra mission image">
+  </figure>
+        <figure class="mi-tile">
+    <img src="{{ url_for('static', filename='images/for_room4.jpg') }}" alt="Extra mission image">
+  </figure>
+    <figure class="mi-tile mi-tile--wide">
+      <img src="{{ url_for('static', filename='images/open5.jpg') }}" alt="Ghost Protocol – Burj Khalifa">
+    </figure>
+    <!-- להוסיף עוד:
+    <figure class="mi-tile"><img src="{{ url_for('static', filename='images/NAME.jpg') }}" alt=""></figure>
+    <figure class="mi-tile mi-tile--tall"><img src="..." alt=""></figure>
+    <figure class="mi-tile mi-tile--wide"><img src="..." alt=""></figure>
+    -->
+  </section>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("start-form");
+  const btn = document.getElementById("start-timer-btn");
+  const display = document.getElementById("timer-display");
+
+  async function startSession() {
+    // בדיקת ולידציה בסיסית
+    const name = document.getElementById("player_name").value.trim();
+    const pass = document.getElementById("password").value;
+    if (!name || !pass) {
+      display.textContent = " Please enter codename and passphrase.";
+      return false;
+    }
+
+    // שליחת הטופס לשרת כדי לשמור סשן/לאמת סיסמה
+    const fd = new FormData(form);
+    const r = await fetch("/start_game", { method: "POST", body: fd, redirect: "follow" });
+    // אם השרת מחזיר HTML עם error, לא נתחיל טיימר. נבדוק ברמז גס:
+    const text = await r.text();
+    if (text.includes("Invalid passphrase") || text.includes("Please enter")) {
+      display.textContent = " Invalid passphrase. Try again.";
+      return false;
+    }
+    return true;
+  }
+
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    display.textContent = " Initializing...";
+    const ok = await startSession();
+    if (!ok) { btn.disabled = false; return; }
+
+    let timeLeft = 5;
+    display.textContent = ` ${timeLeft} seconds remaining...`;
+    const interval = setInterval(() => {
+      timeLeft--;
+      display.textContent = ` ${timeLeft} seconds remaining...`;
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        display.textContent = "Redirecting...";
+        window.location.href = "/prelude";
+      }
+    }, 1000);
+  });
+});
+</script>
+
+
+</body>
+</html>

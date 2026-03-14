@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Room 3 — Descent Mission</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+  <style>
+    /* ===== Base ===== */
+    :root {
+      --ink: #e8f0f6;
+      --bg: #0b0b0b;
+      --card: rgba(12,16,20,.85);
+      --stroke: #1f2a34;
+      --ok: #4ddf6a;
+      --bad: #ff7b7b;
+      --accent: #00ffb4;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0; padding: 24px;
+      background: var(--bg); color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif; line-height: 1.45;
+    }
+
+    /* ===== Scene container (new) ===== */
+    .room--descent {
+      position: relative;
+      min-height: 100%;
+      overflow: hidden;
+      isolation: isolate; /* so glow doesn’t leak */
+    }
+
+    /* ===== Background layers (new) ===== */
+    .bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .bg--sea {
+      background: url("/static/images/bg_carrier_sea.jpg") center/cover no-repeat;
+      filter: saturate(1.08) contrast(1.05) brightness(.95);
+      transform: scale(1.02);
+    }
+    .bg--sky {
+      background:
+        radial-gradient(1200px 600px at 70% 12%, rgba(255,255,255,.12), rgba(0,0,0,0) 60%),
+        linear-gradient(to bottom, rgba(30,55,90,.35), rgba(0,0,0,.0) 60%, rgba(0,0,0,.38));
+      mix-blend-mode: screen;
+      opacity: .6;
+    }
+
+    /* ===== Enemy jet (new) ===== */
+    .enemy-jet {
+      position: absolute;
+      top: 12%;
+      left: -22%;
+      width: min(26vw, 360px);
+      z-index: 2;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,.55));
+      animation: jetPass 14s linear infinite;
+    }
+    .enemy-jet__svg { width: 100%; height: auto; display: block; fill: rgba(220,230,255,.9); }
+    .enemy-jet__mark { fill: #e53935; stroke: #ff9f9f; stroke-width: 2; opacity: .95; }
+    @keyframes jetPass {
+      0%   { transform: translateX(0) translateY(0) rotate(-4deg); opacity: .9; }
+      33%  { transform: translateX(55vw) translateY(-2vh) rotate(-2deg); }
+      60%  { transform: translateX(110vw) translateY(1vh) rotate(0deg); opacity: .95; }
+      61%  { opacity: 0; }
+      100% { transform: translateX(0); opacity: 0; }
+    }
+
+    /* ===== HUD mini radar (new) ===== */
+    .hud {
+      position: absolute; right: 1.2rem; top: 180px; z-index: 3;
+      width: 210px; color: #d8e6f5;
+      background: rgba(10,14,18,.75);
+      border: 1px solid #1e2a35; border-radius: 14px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .hud__title { font-weight: 700; letter-spacing: .5px; padding: .55rem .75rem .35rem;
+      border-bottom: 1px solid rgba(255,255,255,.06); }
+    .hud__radar {
+      position: relative; margin: .6rem auto; width: 140px; height: 140px;
+      border-radius: 50%; overflow: hidden;
+      background:
+        radial-gradient(closest-side, rgba(0,255,180,.18), rgba(0,0,0,0) 68%),
+        repeating-radial-gradient(circle, rgba(0,255,180,.12) 0 2px, rgba(0,0,0,0) 2px 12px);
+    }
+    .hud__sweep {
+      position: absolute; inset: 0;
+      background: conic-gradient(from 0deg, rgba(0,255,180,.4), rgba(0,0,0,0) 40%);
+      mix-blend-mode: screen; animation: sweep 2.6s linear infinite;
+    }
+    @keyframes sweep { to { transform: rotate(360deg); } }
+    .hud__meta { display: grid; gap: .25rem; padding: 0 .8rem .7rem; font-size: .82rem; color: #b8c6d6; }
+
+    /* ===== Cards / existing UI (kept, polished) ===== */
+    h1 { margin: 0 0 8px; text-shadow: 0 2px 14px rgba(0,255,180,.12); position: relative; z-index: 1; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 12px; padding: 16px; max-width: 860px; margin-top: 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      position: relative; z-index: 1;
+    }
+    textarea, input, button { font-size: 16px }
+    textarea { width: 100%; height: 130px; background:#0e1318; color: var(--ink);
+      border:1px solid #2b3a46; border-radius: 10px; }
+    button {
+      padding: 8px 14px; border-radius: 10px;
+      border: 1px solid #3a4a58; background: #182028; color: #fff; cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,.25); transition: transform .12s ease, box-shadow .12s ease;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.3); }
+    .ok { color: var(--ok); font-weight: bold }
+    .bad { color: var(--bad); font-weight: bold }
+
+    /* ===== Alert pulse when score >= 0.70 (new) ===== */
+    body.alert .card { box-shadow: 0 0 0 0 rgba(229,57,53,.6), 0 10px 24px rgba(0,0,0,.35); }
+    body.alert .card:first-of-type { animation: alertPulse 1.6s ease-out 2; }
+    @keyframes alertPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(229,57,53,.6); border-color:#e53935; }
+      70%  { box-shadow: 0 0 0 18px rgba(229,57,53,0); border-color:#1f2a34; }
+      100% { box-shadow: 0 0 0 0 rgba(229,57,53,0); }
+    }
+
+    /* === Local "next" button style for Room 3 === */
+a.btn-next,
+a.btn-next:link,
+a.btn-next:visited {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #0f2330;
+  color: #eaf6ff !important;
+  text-decoration: none !important;
+  border: 1px solid #2b3f50;
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+a.btn-next:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0,0,0,.30);
+  background: #152c3a;
+}
+a.btn-next:active { transform: translateY(0); }
+
+  </style>
+</head>
+
+<style>.force-jet{position:fixed;top:16px;right:16px;width:260px;height:auto;z-index:9999;border:2px solid #fff;box-shadow:0 8px 22px rgba(0,0,0,.35);}</style>
+<img src="{{ url_for('static', filename='images/jet_reference_2.jpg') }}" alt="Russian jet" class="force-jet">
+
+
+<body>
+  <div class="room--descent">
+    <!-- Background layers -->
+    <div class="bg bg--sea"></div>
+    <div class="bg bg--sky"></div>
+
+
+
+    <!-- Enemy jet (SVG silhouette) -->
+    <div class="enemy-jet" aria-label="Russian hostile jet" title="Hostile jet">
+      <svg viewBox="0 0 300 140" class="enemy-jet__svg" role="img">
+        <path d="M10,75 L110,70 L150,50 L180,30 L200,32 L210,45 L235,50 L285,70 L235,90 L210,95 L200,108 L180,110 L150,90 L110,70 L10,65 Z"/>
+        <circle cx="205" cy="60" r="6" class="enemy-jet__mark"/>
+      </svg>
+    </div>
+
+    <!-- HUD -->
+    <div class="hud">
+      <div class="hud__title">Aerial Threat</div>
+      <div class="hud__radar"><div class="hud__sweep"></div></div>
+      <div class="hud__meta">
+        <span>IFF: unknown</span>
+        <span>Vector: NE</span>
+        <span>Altitude: 12.3k</span>
+      </div>
+          <!-- Mission atmosphere image -->
+    <div style="margin: 20px auto; text-align: center; z-index: 2; position: relative;">
+      <img src="{{ url_for('static', filename='images/for_room3.jpg') }}"
+           alt="Tom Cruise jumping from plane"
+           style="max-width: 600px; width: 100%; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.45);" />
+    </div>
+
+    </div>
+
+
+    <!-- ===== Existing content (kept) ===== -->
+    <h1>Room 3 — Descent Mission</h1>
+
+    <div class="card">
+      <p>
+        You are parachuting down from an American transport aircraft, heading straight into the Syrian base where the Russian submarine is hidden.
+        Your ultimate mission: once inside the submarine, you must retrieve the encrypted key locked deep within its hull.
+      </p>
+      <p>
+        But first — if you choose to accept this mission — your task in this room is to detect anomalous signals from aircraft crossing your path during descent.
+        Identify which ones belong to Russian enemy forces and which ones are allied. Your survival, and the mission’s success, depends on your accuracy.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Detect anomalous flight paths</h2>
+      <p>Paste a JSON array of <code>[x,y,t]</code> points (time in seconds). Example:
+        <code>[[0,0,0],[1,0,1],[1,2,2],[4,3,3],[4,8,4]]</code>
+      </p>
+
+      <textarea id="traj">[[0,0,0],[1,0,1],[1,2,2],[4,3,3],[4,8,4]]</textarea>
+      <p>
+        <button id="btnScore">Score</button>
+        <span id="out"></span>
+      </p>
+
+      <p><small>
+        Rule of thumb: score ≥ 0.70 → suspicious (likely hostile).<br>
+        You can tweak the path and re-score to see how sharp turns and bursts increase anomaly.
+      </small></p>
+
+      <p style="margin-top:12px">
+        <button id="btnSave">Save as Russian hostile</button>
+        <button id="btnClassify">Classify current path</button>
+        <span id="clsOut"></span>
+      </p>
+
+      <p>
+  <!-- עובר דרך /room/3/success כדי לשמור הצלחה ב-DB ואז השרת מפנה ל-/room/4 -->
+  <a id="go-room4"
+     class="btn-next"
+     href="{{ url_for('room_success', room_id=3) }}"
+     style="display:none;">Proceed to Room 4 »</a>
+</p>
+
+<!-- אופציונלי: קישור למסך הסיכום -->
+<p><a href="{{ url_for('my_summary') }}">My progress</a></p>
+
+    </div>
+  </div>
+
+  <script>
+    /* ===== Original logic (kept) + tiny alert hook ===== */
+    const btn = document.getElementById('btnScore');
+    const out = document.getElementById('out');
+    const nxt = document.getElementById('go-room4');
+    const btnSave = document.getElementById('btnSave');
+    const btnClass = document.getElementById('btnClassify');
+    const clsOut = document.getElementById('clsOut');
+
+    async function readTraj() {
+      return JSON.parse(document.getElementById('traj').value);
+    }
+
+    btn.addEventListener('click', async () => {
+      try {
+        const traj = await readTraj();
+        const r = await fetch('/api/anomaly/score', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ trajectory: traj })
+        });
+        const data = await r.json();
+        const s = Number(data.score ?? 0);
+        out.textContent = ` Score: ${s.toFixed(3)} `;
+        out.className = (s >= 0.70) ? 'ok' : 'bad';
+
+        // visual alert pulse if suspicious:
+        if (s >= 0.70) {
+          nxt.style.display = 'inline-block';
+          document.body.classList.add('alert');
+          setTimeout(() => document.body.classList.remove('alert'), 1800);
+        }
+      } catch(e) {
+        out.textContent = ' Error: ' + e.message;
+        out.className = 'bad';
+      }
+    });
+
+    btnSave.addEventListener('click', async () => {
+      try {
+        const traj = await readTraj();
+        const r = await fetch('/api/anomaly/save', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ trajectory: traj })
+        });
+        const data = await r.json();
+        clsOut.textContent = ` Saved! hostile prototypes: ${data.saved_count}`;
+        clsOut.className = 'ok';
+      } catch (e) {
+        clsOut.textContent = ' Error: ' + e.message;
+        clsOut.className = 'bad';
+      }
+    });
+
+    btnClass.addEventListener('click', async () => {
+      try {
+        const traj = await readTraj();
+        const r = await fetch('/api/anomaly/classify', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ trajectory: traj })
+        });
+        const data = await r.json();
+        const labelTxt = data.label === 'hostile' ? 'HOSTILE (Russian)' : 'ALLY (friendly)';
+        const extra = data.nearest_dist !== null ? ` | nearest dist: ${data.nearest_dist?.toFixed?.(3)}` : '';
+        clsOut.textContent = ` Classified: ${labelTxt} | reason: ${data.reason}${extra} | bank: ${data.bank_size}`;
+        clsOut.className = (data.label === 'hostile') ? 'bad' : 'ok';
+      } catch (e) {
+        clsOut.textContent = ' Error: ' + e.message;
+        clsOut.className = 'bad';
+      }
+    });
+  </script>
+</body>
+</html>

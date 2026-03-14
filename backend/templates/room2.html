@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submarine Detection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+
+  <!-- UI קטן להצגת התקדמות (משלים את ה-CSS הגלובלי) -->
+  <style>
+    .room2-hud{max-width:980px;margin:10px auto 0;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+    .meter{height:10px;background:#183244;border:1px solid #23485f;border-radius:999px;overflow:hidden}
+    .meter>span{display:block;height:100%;background:#00d1a3;width:0%}
+    .mini{max-width:980px;margin:4px auto 10px;font-size:.95rem;color:#b9d0df}
+    .tag{display:inline-block;padding:2px 8px;border:1px solid #23485f;border-radius:999px;background:#0e2534;color:#cfeaf7;margin:0 4px}
+    .msg{margin:.6rem 0 .2rem}
+    .ok{color:#45f7c1;font-weight:700}
+    .bad{color:#ff8484;font-weight:700}
+  </style>
+
+  <script>
+    const state = { attempts_left: null, coverage_required: 2 };
+
+    async function submitLabel(image, label) {
+      const confEl = document.getElementById('conf');
+      const confidence = confEl ? Number(confEl.value) : 0.7;
+
+      const r = await fetch("/room2/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image, label, confidence })
+      });
+      const data = await r.json();
+
+      const msg = document.getElementById("msg");
+      msg.textContent = data.message || "";
+      msg.className = "msg " + (data.status === "success" ? "ok" : (data.status === "error" ? "bad" : ""));
+
+      if (data.progress?.posterior_success != null) {
+        const p = Math.round(100 * data.progress.posterior_success);
+        document.querySelector(".meter>span").style.width = p + "%";
+        document.getElementById("pval").textContent = (data.progress.posterior_success).toFixed(2);
+      }
+
+      if (data.progress?.coverage) {
+        const cov = data.progress.coverage;
+        const req = data.progress.coverage_required ?? state.coverage_required;
+        document.getElementById("cov").innerHTML = cov.map(c=>`<span class="tag">${c}</span>`).join("");
+        document.getElementById("covReq").textContent = req;
+      }
+
+      if (data.progress?.attempts_left != null) {
+        state.attempts_left = data.progress.attempts_left;
+        document.getElementById("left").textContent = state.attempts_left;
+      }
+
+      if (data.next) {
+        const box = document.getElementById("reveal");
+        const img = document.getElementById("reveal-img");
+        img.src = data.next;
+        box.style.display = "block";
+      }
+
+      if (data.status === "success") {
+  const btn = document.getElementById("go-room3");
+  btn.style.display = "inline-block"; // ה-href כבר מצביע ל-/room/2/success
+}
+
+    }
+
+    async function resetRoom2(){
+      await fetch("/room2/reset", { method: "POST" });
+      location.reload();
+    }
+  </script>
+</head>
+
+<!-- עיצוב רקע דרמטי מופעל ע"י המחלקה הזו (מוגדרת ב-style.css) -->
+<body class="room--detect">
+
+  <div class="room2-wrap">
+    <h1 class="room2-title">Submarine Detection</h1>
+    <p class="room2-sub">Look at the images below and determine if a submarine is present.</p>
+
+    <!-- בורר ביטחון + מד התקדמות -->
+    <div class="room2-hud">
+      <div class="mini">
+        Confidence:
+        <input id="conf" type="range" min="0" max="1" step="0.05" value="0.70"
+               oninput="this.nextElementSibling.textContent = Number(this.value).toFixed(2)"/>
+        <span>0.70</span>
+        <span style="margin-left:10px">Attempts left: <strong id="left">—</strong></span>
+        <button style="margin-left:10px" onclick="resetRoom2()">Reset</button>
+      </div>
+      <div class="meter" aria-label="Posterior success">
+        <span style="width:0%"></span>
+      </div>
+    </div>
+
+    <div class="mini">
+      p(success)=<strong id="pval">0.00</strong> |
+      coverage(<span id="cov"></span>) / required <span id="covReq">2</span>
+      <div id="msg" class="msg"></div>
+    </div>
+
+    <!-- רשת התמונות (כל הקיימות + אפשר להוסיף חדשות) -->
+    <div class="detect-grid">
+      {% for image in images %}
+        <div class="img-card">
+          <img src="{{ url_for('static', filename='images/' + image) }}" alt="Underwater Scan">
+          <div class="img-actions">
+            <button class="btn-mi positive" onclick="submitLabel('{{ image }}', 1)">Submarine Detected</button>
+            <button class="btn-mi negative" onclick="submitLabel('{{ image }}', 0)">No Submarine</button>
+          </div>
+        </div>
+      {% endfor %}
+</div>
+
+    <!-- אזור חשיפת המיקום הסודי -->
+    <div id="reveal" style="display:none; margin-top:24px;">
+      <h2>Secret location found</h2>
+      <img id="reveal-img" src="" alt="Submarine secret location" width="600">
+    </div>
+
+    <!-- כפתור מעבר לחדר 3 (מוסתר עד הצלחה) -->
+<!-- לינק שעובר דרך /room/2/success כדי לשמור הצלחה ב-DB ואז לעבור לחדר 3 -->
+<p>
+  <a id="go-room3"
+     class="btn-next"
+     href="{{ url_for('room_success', room_id=2) }}"
+     style="display:none;">Continue to Room 3 »</a>
+</p>
+
+<!-- אופציונלי, נחמד למשתמש: -->
+<p><a href="{{ url_for('my_summary') }}">My progress</a></p>
+
+  </div>
+</body>
+</html>

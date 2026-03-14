@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyd
+build/
+dist/
+node_modules/
+.idea/
+.vscode/
+.env
