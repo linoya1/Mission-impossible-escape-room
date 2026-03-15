@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, session, jsonify, abort
 import os
+from backend.config import DevelopmentConfig
 
 # === DB ===
 from backend.db import db, init_db
@@ -14,9 +15,11 @@ from backend.rooms.room2 import room2
 from backend.rooms.room3 import room3
 from backend.rooms.room4 import room4
 
+# app = Flask(__name__, static_folder="static")
+# app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")  # לשמירת מצב המשחק
 app = Flask(__name__, static_folder="static")
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")  # לשמירת מצב המשחק
-
+app.config.from_object(DevelopmentConfig)
+app.secret_key = app.config["SECRET_KEY"]  # לשמירת מצב המשחק
 # === חיבור מסד נתונים (קיים) ===
 init_db(app)
 
@@ -173,5 +176,8 @@ app.register_blueprint(room2)
 app.register_blueprint(room3)
 app.register_blueprint(room4)
 
+# if __name__ == "__main__":
+#    app.run(debug=True)
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)

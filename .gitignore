@@ -1,10 +1,31 @@
+# Virtual environments
 .venv/
+venv/
+
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
 *.pyd
+
+# Build / packaging
 build/
 dist/
+*.egg-info/
+
+# Node
 node_modules/
+
+# Environment variables
+.env
+
+# Database (local SQLite)
+backend/instance/*.db
+
+# IDEs
 .idea/
 .vscode/
-.env
+
+# OS files
+.DS_Store
+Thumbs.db
