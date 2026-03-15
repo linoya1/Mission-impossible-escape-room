@@ -166,6 +166,8 @@ Open browser
 http://127.0.0.1:5000
 ```
 
+The SQLite database file (`game.db`) is created automatically in `backend/instance/` on first run.
+
 ---
 
 ## Running Tests
