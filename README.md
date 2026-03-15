@@ -187,7 +187,7 @@ Notes:
 Example success output:
 
 ```
-21 passed in 1.72s
+24 passed in 2.34s
 ```
 
 ---
