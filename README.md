@@ -4,7 +4,7 @@
 ![Flask](https://img.shields.io/badge/Flask-Web%20Framework-black)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-red)
 ![SQLite](https://img.shields.io/badge/Database-SQLite-green)
-![Status](https://img.shields.io/badge/Project-Academic%20Project-orange)
+
 
 An interactive **multi-room escape room web application** inspired by the *Mission Impossible* universe.
 
