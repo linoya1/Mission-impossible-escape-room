@@ -1,0 +1,2 @@
+This file ensures the instance directory exists in the repository.
+SQLite database (game.db) will be created here at runtime.
