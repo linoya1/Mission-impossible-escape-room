@@ -3,7 +3,7 @@
 
 namespace py = pybind11;
 
-// גרסה ידידותית ל-MSVC: בלי __int128 (מספיקת לחלוטין ל-n קטן כמו 3233)
+// MSVC-friendly version: without __int128 (fully sufficient for small n such as 3233)
 static long long modexp(long long base, long long exp, long long mod) {
     long long res = 1 % mod;
     base %= mod;
@@ -15,7 +15,7 @@ static long long modexp(long long base, long long exp, long long mod) {
     return res;
 }
 
-// מפענח כל "בייט" בנפרד: c^d mod n
+// Decrypts each "byte" separately: c^d mod n
 std::vector<int> rsa_decrypt_bytes(const std::vector<int>& cipher_bytes, long long d, long long n) {
     std::vector<int> out;
     out.reserve(cipher_bytes.size());
