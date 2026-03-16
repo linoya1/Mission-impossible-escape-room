@@ -1,4 +1,4 @@
-# 🎯 Mission Impossible Escape Room
+# 💣 Mission Impossible Escape Room
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![Flask](https://img.shields.io/badge/Flask-Web%20Framework-black)
@@ -12,7 +12,7 @@ Players progress through a sequence of technical and logic-based challenges incl
 
 The project demonstrates **backend-driven game logic, state persistence, and modular room architecture**.
 
-## Live Demo
+## 🧨 Live Demo
 
 Play the game here:
 
@@ -233,7 +233,7 @@ http://localhost:5000
 
 ---
 
-## Game Mechanics
+## 💥 Game Mechanics
 
 Each room introduces a different technical challenge:
 
