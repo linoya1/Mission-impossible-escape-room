@@ -242,22 +242,22 @@ http://localhost:5000
 
 Each room introduces a different technical challenge:
 
-Room 1 - Pattern Recognition
+**Room 1 - Pattern Recognition**
 Pattern recognition puzzle. The player selects the correct images from a small set; the backend validates the exact match to mark success.
 
 <img width="1862" height="902" alt="image" src="https://github.com/user-attachments/assets/ca6590f5-e505-46fe-925b-d2e8afeca9b3" />
 
-Room 2 - Signal Classification
+**Room 2 - Signal Classification**
 Signal classification using NumPy. The player labels submarine vs. non-submarine images; the server computes a Bayesian success score and enforces minimum correct coverage before unlocking the next room.
 
 <img width="1522" height="890" alt="image" src="https://github.com/user-attachments/assets/7ba5fb65-f425-41f8-bee1-92b9f3793091" />
 
-Room 3 - Anomaly Detection
+**Room 3 - Anomaly Detection**
 Anomaly detection challenge. The player submits a flight path trajectory; the server scores curvature and jerk to detect anomalies and unlocks the next room when the score exceeds a threshold.
 
 <img width="1846" height="880" alt="image" src="https://github.com/user-attachments/assets/56e4d90c-3548-424c-8a1a-b2ad58c49297" />
 
-Room 4 - RSA Decryption
+**Room 4 - RSA Decryption**
 RSA decryption puzzle combining Python and optional C++ acceleration. The player chooses a candidate RSA key; the backend decrypts a hidden message and checks for specific plaintext tokens before marking mission complete.
 
 <img width="1817" height="870" alt="image" src="https://github.com/user-attachments/assets/34f18c86-e8fa-446f-8de8-cca920c6e11e" />
@@ -281,20 +281,6 @@ Progress tracking stores per-room start time, success time, and attempt count to
 Progression is enforced server-side: each room must be marked as succeeded in the database before the next room is accessible.
 
 The backend stores per-room start time, success time, and attempt count, and exposes the **My Progress** summary during the game.
-
----
-
-# 🖼 Screenshots
-
-*(Add screenshots here to demonstrate gameplay)*
-
-Examples to include:
-
-• login screen  
-• puzzle interface  
-• LIDAR scanning panel  
-• RSA challenge  
-• mission summary page  
 
 ---
 
