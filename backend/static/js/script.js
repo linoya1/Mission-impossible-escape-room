@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function() {
     let selectedImages = new Set();
 
-    // ניהול בחירת תמונות
+    // Image selection handling
     document.querySelectorAll(".game-image").forEach(img => {
         img.addEventListener("click", function() {
             let filename = img.getAttribute("data-filename");
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // שליחת תשובה לשרת
+    // Send the answer to the server
     document.getElementById("submit-btn").addEventListener("click", function() {
         fetch("/check_room1_answer", {
             method: "POST",
@@ -29,13 +29,13 @@ document.addEventListener("DOMContentLoaded", function() {
             message.style.color = data.status === "success" ? "green" : "red";
 
             if (data.status === "success") {
-                // הצגת הכפתור לחדר הבא + תמונת הפיצוץ
+                // Display the button for the next room + the explosion image
                 const nextBtn = document.getElementById("next-room-btn");
                 const boomImg = document.getElementById("kremlin-boom");
                 if (nextBtn) nextBtn.style.display = "block";
                 if (boomImg) {
                     boomImg.style.display = "block";
-                    // אופציונלי: גלילה רכה לתמונה והכפתור
+                    // Optional: smooth scrolling to the image and the button
                     boomImg.scrollIntoView({ behavior: "smooth", block: "start" });
                 }
             }
