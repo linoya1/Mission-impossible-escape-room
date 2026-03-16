@@ -205,8 +205,15 @@ a.btn-next:active { transform: translateY(0); }
     <div class="card">
       <h2>Detect anomalous flight paths</h2>
       <p>Paste a JSON array of <code>[x,y,t]</code> points (time in seconds). Example:
-        <code>[[0,0,0],[1,0,1],[1,2,2],[4,3,3],[4,8,4]]</code>
-      </p>
+  <code>[[0,0,0],[1,0,1],[1,2,2],[4,3,3],[4,8,4]]</code>
+</p>
+
+<p>
+Each point represents the aircraft position <code>(x,y)</code> at time <code>t</code>.
+Sharp jumps in distance between consecutive seconds may indicate anomalous or hostile behavior.
+For example, a jump from <code>(0,0)</code> at <code>t=0</code> to <code>(10,1)</code> at <code>t=1</code>
+represents an unusually large movement within one second.
+</p>
 
       <textarea id="traj">[[0,0,0],[1,0,1],[1,2,2],[4,3,3],[4,8,4]]</textarea>
       <p>

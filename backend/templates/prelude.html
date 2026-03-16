@@ -95,8 +95,8 @@
 <body class="room-prelude">
   <div class="prelude-wrap">
     <h1>Prelude — Infiltrate the Kremlin</h1>
-    <p>Hello <strong>{{ session.get('player_name', 'Agent') }}</strong>.
-      Click the guard’s <strong>right eye</strong> and then the <strong>left eye</strong>. The AI will validate your clicks.</p>
+    <p>Agent <strong>{{ session.get('player_name', 'Agent') }}</strong>.
+      Click directly on the guard’s <strong>right eye</strong> and then the <strong>left eye</strong>. The AI will validate your clicks.</p>
 
     <div class="scene-container" id="scene-container">
       <img id="scene-img" src="{{ url_for('static', filename='images/guard_eyes2.jpg') }}" alt="Guard - front desk">
