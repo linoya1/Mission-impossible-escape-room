@@ -18,6 +18,8 @@ Play the game here:
 
 https://mission-impossible-escape-room.onrender.com
 
+<img width="1890" height="825" alt="image" src="https://github.com/user-attachments/assets/04b1c22b-9ce0-4bb6-9038-21fc755c46c7" />
+
 ---
 
 # 🕹 Gameplay Overview
@@ -33,6 +35,9 @@ Mission flow:
 5️⃣ Final mission summary
 
 Each room introduces a different mechanic, and progression is enforced server-side (players can only access the next room after the previous room is marked as succeeded in the database).
+
+<img width="1393" height="888" alt="image" src="https://github.com/user-attachments/assets/92900546-2fef-42d9-868a-fcc8cdad1b69" />
+<img width="1432" height="895" alt="image" src="https://github.com/user-attachments/assets/b884bd0a-9fb0-4ab6-a56b-2f2b67640e3e" />
 
 Example challenges:
 
@@ -237,21 +242,37 @@ http://localhost:5000
 
 Each room introduces a different technical challenge:
 
-Room 1  
+Room 1 - Pattern Recognition
 Pattern recognition puzzle. The player selects the correct images from a small set; the backend validates the exact match to mark success.
 
-Room 2  
+<img width="1862" height="902" alt="image" src="https://github.com/user-attachments/assets/ca6590f5-e505-46fe-925b-d2e8afeca9b3" />
+
+Room 2 - Signal Classification
 Signal classification using NumPy. The player labels submarine vs. non-submarine images; the server computes a Bayesian success score and enforces minimum correct coverage before unlocking the next room.
 
-Room 3  
+<img width="1522" height="890" alt="image" src="https://github.com/user-attachments/assets/7ba5fb65-f425-41f8-bee1-92b9f3793091" />
+
+Room 3 - Anomaly Detection
 Anomaly detection challenge. The player submits a flight path trajectory; the server scores curvature and jerk to detect anomalies and unlocks the next room when the score exceeds a threshold.
 
-Room 4  
+<img width="1846" height="880" alt="image" src="https://github.com/user-attachments/assets/56e4d90c-3548-424c-8a1a-b2ad58c49297" />
+
+Room 4 - RSA Decryption
 RSA decryption puzzle combining Python and optional C++ acceleration. The player chooses a candidate RSA key; the backend decrypts a hidden message and checks for specific plaintext tokens before marking mission complete.
+
+<img width="1817" height="870" alt="image" src="https://github.com/user-attachments/assets/34f18c86-e8fa-446f-8de8-cca920c6e11e" />
+<img width="1817" height="712" alt="image" src="https://github.com/user-attachments/assets/5cd2cfdf-f9aa-4536-a71d-1f8414ab482e" />
 
 Each room includes a **My Progress** link so the player can view their current stats during the mission, not only at the end.
 
 Progress tracking stores per-room start time, success time, and attempt count to generate the mission summary.
+
+---
+
+## 🏁 Mission Summary
+
+<img width="1191" height="796" alt="image" src="https://github.com/user-attachments/assets/494bfcc4-3686-483f-9cd4-5dc44605109b" />
+<img width="1147" height="498" alt="image" src="https://github.com/user-attachments/assets/9746f456-5478-4533-abdc-772b40ddbacb" />
 
 ---
 
