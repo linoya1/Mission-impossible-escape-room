@@ -4,7 +4,7 @@ body {
     line-height: 1.6;
 }
 
-/* עיצוב מרכזי לתוכן */
+/* Centered content styling */
 .content {
     text-align: center;
     max-width: 600px;
@@ -15,18 +15,18 @@ body {
     border-radius: 10px;
 }
 
-/* תמונת הרקע של הדף */
+/* Page background image wrapper */
 .image-container {
     text-align: center;
     margin-top: 20px;
 }
 .image-container img {
     width: 100%;
-    max-width: 500px;  /* גודל מקסימלי לתמונה */
+    max-width: 500px;  /* Max image size */
     border-radius: 10px;
 }
 
-/* עיצוב תמונות החידה */
+/* Puzzle image styling */
 #image-container {
     display: flex;
     justify-content: center;
@@ -35,17 +35,17 @@ body {
     margin: 20px 0;
 }
 .game-image {
-    width: 350px;   /* הגדלתי את הרוחב */
-    height: 250px;  /* שמירה על גובה סביר */
-    object-fit: cover; /* מבטיח שהתמונה לא תתעוות */
+    width: 350px;   /* Increased width */
+    height: 250px;  /* Keep a reasonable height */
+    object-fit: cover; /* Prevent image distortion */
     border: 3px solid transparent;
     cursor: pointer;
     transition: transform 0.3s ease, border 0.3s ease;
 }
-.game-image:hover { transform: scale(1.1); } /* מגדיל מעט את התמונה בהובר */
-.game-image.selected { border: 5px solid red; } /* סימון התמונות שנבחרו */
+.game-image:hover { transform: scale(1.1); } /* Slight zoom on hover */
+.game-image.selected { border: 5px solid red; } /* Highlight selected images */
 
-/* עיצוב כפתורים (כללי) */
+/* Button styling (global) */
 button {
     padding: 12px 25px;
     font-size: 18px;
@@ -59,7 +59,7 @@ button {
 }
 button:hover { background-color: darkred; }
 
-/* התאמה למובייל */
+/* Mobile adjustments */
 @media (max-width: 768px) {
   .game-image {
       width: 300px;
@@ -68,7 +68,7 @@ button:hover { background-color: darkred; }
 }
 
 /* ========= Room 4 ========= */
-/* רקע "צוללת במעמקים" */
+/* "Submarine depths" background */
 .room4-bg {
   min-height: 100vh;
   margin: 0;
@@ -77,7 +77,7 @@ button:hover { background-color: darkred; }
   overflow-x: hidden;
 }
 
-/* כרטיסי תוכן */
+/* Content cards */
 .hud {
   max-width: 1040px;
   margin: 20px auto;
@@ -96,20 +96,20 @@ button:hover { background-color: darkred; }
 }
 .subtle { opacity:.9 }
 
-/* גריד: סונאר משמאל, אובייקטים מימין */
+/* Grid: sonar left, objects right */
 /* .lidar-wrap { display:grid; grid-template-columns: 440px 1fr; gap: 18px; align-items:start; }
 /* @media (max-width: 980px){ .lidar-wrap { grid-template-columns: 1fr; } }
-/* גריד Room 4 – תמיד נכנס לרוחב המסך ושורות טקסט ארוכות יותר */
+/* Room 4 grid – full width and longer text lines */
 
 
 
 .room4-bg .lidar-wrap{
   display: grid;
-  grid-template-columns: minmax(520px, 48vw) 1fr; /* עמודה שמאלית רחבה */
+  grid-template-columns: minmax(520px, 48vw) 1fr; /* Wide left column */
   gap: 18px;
   align-items: start;
 
-  /* הגבלות רוחב בטוחות + מיקום מרכזי */
+  /* Safe width limits + centered layout */
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
@@ -128,16 +128,16 @@ button:hover { background-color: darkred; }
   position:relative;
 }
 
-/* כפתורים/תגיות */
+/* Buttons/tags */
 button { padding:10px 14px; border-radius:10px; border:1px solid #2b556e; background:#0e2534; color:#dff7ff; cursor:pointer }
 button:hover{ filter:brightness(1.12) }
 .pill { display:inline-block; padding:5px 10px; border-radius:1000px; background:#0e2534; border:1px solid #2b556e; }
 
-/* נורית חיווי */
+/* Status indicator */
 .led { width:10px; height:10px; border-radius:50%; background:#2a3f4f; box-shadow:0 0 6px rgba(0,255,170,0.25); display:inline-block; }
 .led.active { background:#00e0ad; box-shadow:0 0 10px #00e0ad; }
 
-/* קנבס + שכבות */
+/* Canvas + layers */
 .canvas-frame { position:relative; border-radius:12px; overflow:hidden; border:1px solid #173449; }
 #lidarCanvas { width:100%; height:380px; display:block; background:#061017; }
 .grid-overlay {
@@ -150,7 +150,7 @@ button:hover{ filter:brightness(1.12) }
 .sonar-glow { position:absolute; inset:-20%; background: radial-gradient(closest-side, #00ffbf22, transparent 70%); mix-blend-mode:screen; animation:pulse 3s infinite; pointer-events:none; opacity:.5; }
 @keyframes pulse { 0%{opacity:.15} 50%{opacity:.45} 100%{opacity:.15} }
 
-/* קלפים של האובייקטים */
+/* Object cards */
 .objects { display:grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap:12px; }
 .obj-card {
   display:flex; align-items:center; gap:10px; padding:10px; border:1px solid #1c3a50; border-radius:12px;
@@ -160,39 +160,39 @@ button:hover{ filter:brightness(1.12) }
 .obj-card label { display:flex; align-items:center; gap:8px; cursor:pointer; width:100%; }
 .obj-card input { transform:scale(1.2); accent-color:#00d1a3; }
 
-/* קוד/תוצאות */
+/* Code/results */
 code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px solid #173449 }
 .ok { color:#45f7c1; font-weight: 700 }
 .bad { color:#ff8484; font-weight: 700 }
 
 
 /* ========= Room 3 ========= */
-/* מכולת החדר */
+/* Room container */
 .room--descent {
   position: relative;
   overflow: hidden;
   background: #0a0a0a;
 }
 
-/* שכבות רקע */
+/* Background layers */
 .bg { position: absolute; inset: 0; pointer-events: none; }
 
-/* ים + נושאת מטוסים */
+/* Sea + aircraft carrier */
 .bg--sea {
   z-index: 0;
   background: url("/static/images/bg_carrier_sea.jpg") right bottom / cover no-repeat;
   filter: saturate(1.05) contrast(1.03) brightness(.92);
 }
 
-/* שמיים + תמונת מטוס רוסי כרקע (שכבה אחת מאוחדת) */
+/* Sky + Russian jet photo (single combined layer) */
 .bg--sky {
   position: absolute;
   inset: 0;
-  z-index: 1;           /* מעל הים, מתחת לתוכן */
+  z-index: 1;           /* Above sea, below content */
   pointer-events: none;
   opacity: .85;
 
-  /* שכבה 1: הילה; שכבה 2: גרדיאנט שמיים; שכבה 3: תמונת המטוס */
+  /* Layer 1: glow; layer 2: sky gradient; layer 3: jet image */
   background-image:
     radial-gradient(900px 450px at 65% 12%, rgba(230,245,255,.14), rgba(0,0,0,0) 60%),
     linear-gradient(to bottom, rgba(30,55,90,.22), rgba(0,0,0,0) 60%, rgba(0,0,0,.28)),
@@ -200,20 +200,20 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
 
   background-repeat: no-repeat, no-repeat, no-repeat;
 
-  /* מיקומים – המטוס בצד ימין למעלה; התאימי offset אם הוא מתנגש ב-HUD */
+  /* Positions – jet at top-right; adjust offset if it overlaps the HUD */
   background-position:
     65% 12%,
     0% 0%,
     right 16px top 16px;
 
-  /* גדלים – המטוס ~260px רוחב; שאר שכבות בגודל אוטומטי */
+  /* Sizes – jet ~260px wide; other layers auto-size */
   background-size:
     auto,
     auto,
     260px;
 }
 
-/* במסכים צרים: המטוס קטן וקצת מתחת לכותרת */
+/* On narrow screens: shrink and shift the jet below the heading */
 @media (max-width: 900px){
   .bg--sky{
     background-position:
@@ -227,7 +227,7 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   }
 }
 
-/* מטוס אויב – סילואטה אנימטיבית (נשאר אצלך אם תרצי) */
+/* Enemy jet – animated silhouette (kept for optional use) */
 .enemy-jet {
   position: absolute;
   top: 12%;
@@ -248,7 +248,7 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   100% { transform: translateX(0); opacity: 0; }
 }
 
-/* HUD של Room 3 (הקופסה בפינה) */
+/* Room 3 HUD (corner box) */
 .room--descent .hud {
   position: absolute;
   right: 1.2rem; top: 1.2rem;
@@ -290,7 +290,7 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   opacity: .95;
 }
 
-/* כרטיסי הטקסט/טפסים – ליפט */
+/* Text/form cards – lift */
 .room--descent .card, .room--descent .panel, .room--descent textarea {
   background: rgba(12,16,20,.85) !important;
   border: 1px solid #1f2a34 !important;
@@ -305,7 +305,7 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
 /* ===== Room 3: Russian jet photo overlay with fallback (no HTML changes) ===== */
 .room--descent { position: relative; }
 
-/* תיבה בפינה הימנית-עליונה עם רקע: קודם תמונת ה-JPG שלך, ואם לא נטענת — SVG של מטוס */
+/* Top-right box with background: first your JPG, and if it fails — an SVG jet */
 .room--descent::after{
   content: "";
   position: absolute;
@@ -313,13 +313,13 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   right: 16px;
   width: 260px;
   height: 160px;
-  z-index: 50;               /* מעל הרקעים וה-HUD */
+  z-index: 50;               /* Above backgrounds and HUD */
   pointer-events: none;
   border-radius: 10px;
   box-shadow: 0 8px 22px rgba(0,0,0,.35);
 
-  /* שכבה 1: ניסיון לטעון את הקובץ שלך
-     שכבה 2: גיבוי – SVG של מטוס, כדי שתמיד תראי משהו */
+  /* Layer 1: try your image file
+     Layer 2: fallback – SVG jet so something always renders */
   background-image:
     url("/static/images/jet_reference_1.jpg"),
     url('data:image/svg+xml;utf8,\
@@ -329,13 +329,13 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
 <circle cx="205" cy="60" r="7" fill="%23e53935" stroke="%23ff9f9f" stroke-width="2"/>\
 </svg>');
 
-  /* למקם ולגודל כל שכבה בנפרד */
+  /* Position and size each layer independently */
   background-repeat: no-repeat, no-repeat;
-  background-position: center, center;          /* שתיהן במרכז התיבה */
-  background-size: cover, contain;              /* התמונה מכסה; ה-SVG נכנס למסגרת */
+  background-position: center, center;          /* Center both layers */
+  background-size: cover, contain;              /* Image covers; SVG fits */
 }
 
-/* במסכים צרים – נקטין מעט */
+/* On narrow screens – shrink slightly */
 @media (max-width: 900px){
   .room--descent::after{
     width: 200px;
@@ -347,14 +347,14 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
 
 /* ==== ROOM 2 — Mission Impossible Skin ==== */
 
-/* מעט וינייט + רקע תת-ימי */
+/* Subtle vignette + underwater background */
 .room--detect {
   background: #031019 url("/static/images/water_dark.jpg") center/cover no-repeat fixed;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
 }
-.room--detect::before { /* וינייט קולנועית */
+.room--detect::before { /* Cinematic vignette */
   content: "";
   position: fixed; inset: 0;
   pointer-events: none;
@@ -372,7 +372,7 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   color: #dfefff;
 }
 
-/* כותרת קולנועית */
+/* Cinematic heading */
 .room2-title {
   font-size: clamp(30px, 4.2vw, 52px);
   line-height: 1.05;
@@ -386,7 +386,7 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   font-size: 18px;
 }
 
-/* פס מידע עליון (p(success), כפתור Reset וכו') */
+/* Top info bar (p(success), Reset button, etc.) */
 .room2-hud {
   display: flex; flex-wrap: wrap; gap: 14px 18px;
   align-items: center;
@@ -398,7 +398,7 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   box-shadow: 0 10px 30px rgba(0,0,0,.35);
 }
 
-/* תגיות (harbor, night_ops...) */
+/* Tags (harbor, night_ops...) */
 .tag {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 6px 10px; border-radius: 999px;
@@ -407,7 +407,7 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   font-size: 13px; color: #cfeaff;
 }
 
-/* גריד של התמונות */
+/* Image grid */
 .detect-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -415,9 +415,9 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   margin-top: 18px;
 }
 
-/* כרטיס תמונה דרמטי */
+/* Dramatic image card */
 .img-card {
-  grid-column: span 6;           /* 2 בעמודה במסכים גדולים */
+  grid-column: span 6;           /* 2 per row on large screens */
   background: rgba(4,14,24,.5);
   border: 1px solid rgba(120,190,255,.16);
   border-radius: 16px;
@@ -440,7 +440,7 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   border-top: 1px solid rgba(120,190,255,.12);
 }
 
-/* כפתורים */
+/* Buttons */
 .btn-mi {
   appearance: none; border: 1px solid transparent;
   background: #0e2738; color: #e5f4ff;
@@ -453,14 +453,14 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
 .btn-mi.positive { background: linear-gradient(180deg, #093c4f, #0a2d41); border-color: rgba(84,176,255,.35); }
 .btn-mi.negative { background: linear-gradient(180deg, #261b20, #171118); border-color: rgba(255,84,120,.28); }
 
-/* רספונסיביות */
+/* Responsiveness */
 @media (max-width: 980px){
   .img-card{ grid-column: span 12; }
   .img-card img{ height: 240px; }
 }
 
 /* ========= Room 1 ========= */
-/* רקע קרמלין */
+/* Kremlin background */
 .room1-bg {
   min-height: 100vh;
   margin: 0;
@@ -490,9 +490,9 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   font-size: 18px;
 }
 
-/* תמונת הקרמלין המופצץ */
+/* Bombed Kremlin image */
 #kremlin-boom {
-  display: none;           /* מוסתרת עד שנחשפים */
+  display: none;           /* Hidden until revealed */
   margin-top: 20px;
   max-width: 600px;
   width: 100%;
@@ -500,12 +500,12 @@ code, pre { background:#0b131b; padding:6px 8px; border-radius:6px; border:1px s
   box-shadow: 0 12px 40px rgba(0,0,0,.5);
 }
 
-/* טקסט שחור עבור Room 1 */
+/* Black text for Room 1 */
 .room1-bg h1,
 .room1-bg p,
 .room1-bg #result-message {
   color: black !important;
-  text-shadow: none !important; /* אם יש צל קודם שמפריע */
+  text-shadow: none !important; /* If a previous shadow interferes */
 }
 
 
@@ -524,25 +524,25 @@ body.landing-index {
   color: #eaf2ff;
 }
 
-/* היה: object-fit: cover;  → חותך */
+/* Was: object-fit: cover;  -> crops */
 .hero-img{
   width: 100%;
-  height: auto;          /* נותן לתמונה את הגובה הטבעי לפי היחס שלה */
+  height: auto;          /* Uses the image's natural height based on its ratio */
   display: block;
-  object-fit: contain;   /* מצמצם במקום לחתוך */
-  background: #000;      /* פסי שחור דקים אם היחס לא תואם */
-  /* אופציונלי: תוסיפי צל קטן אם בא לך */
+  object-fit: contain;   /* Fits instead of cropping */
+  background: #000;      /* Thin black bars if ratios differ */
+  /* Optional: add a small shadow if desired */
   filter: contrast(1.05) saturate(1.05) brightness(.98);
 }
 
-/* אפשר לבטל את ההגבלה הקודמת על גובה מקסימלי */
+/* You can remove the prior max-height limit */
 .hero-banner{
   position: relative;
   width: 100%;
-  /* היה max-height: ...  -> להסיר כדי שלא יקצץ גובה */
+  /* Was max-height: ...  -> remove to avoid cropping */
   border-bottom: 1px solid rgba(140,200,255,.14);
   box-shadow: 0 12px 40px rgba(0,0,0,.6);
-  overflow: hidden; /* שומר קצוות נקיים */
+  overflow: hidden; /* Keep edges clean */
 }
 
 .hero-overlay {
@@ -553,7 +553,7 @@ body.landing-index {
   pointer-events: none;
 }
 
-/* Card wrapper (ממחזרת את ה-.content שלך ומעדנת) */
+/* Card wrapper (reuses .content and refines it) */
 .card {
   max-width: 900px;
   margin: 26px auto;
@@ -564,7 +564,7 @@ body.landing-index {
 }
 .card h1 { margin-top: 6px; }
 
-/* טופס התחל משחק */
+/* Start game form */
 .start-form {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -595,7 +595,7 @@ body.landing-index {
   .start-form { grid-template-columns: 1fr; }
 }
 
-/* Masonry-like grid (תפזורת) בלי JS */
+/* Masonry-like grid (scatter) without JS */
 .mi-grid{
   max-width: 1100px;
   margin: 18px auto 40px;
@@ -620,7 +620,7 @@ body.landing-index {
 }
 .mi-tile:hover{ transform: translateY(-2px); border-color: rgba(140,200,255,.35); box-shadow: 0 24px 64px rgba(0,0,0,.55); }
 
-/* וריאציות גובה/רוחב כדי לקבל תחושה של "תפזורת" */
+/* Height/width variants for a "scatter" feel */
 .mi-tile { height: 220px; }
 .mi-tile--tall { grid-row: span 2; height: 460px; }
 .mi-tile--wide { grid-column: span 2; }
@@ -628,9 +628,9 @@ body.landing-index {
   .mi-tile--wide { grid-column: span 1; }
 }
 
-/* תמונות עם original-size יוצגו בגודלן המקורי בלי חיתוך */
+/* Images with original-size display without cropping */
 .mi-tile img.original-size {
-  object-fit: contain;  /* במקום cover */
+  object-fit: contain;  /* Instead of cover */
   width: auto;
   height: auto;
   max-width: 100%;
@@ -662,7 +662,7 @@ body.landing-index {
   color: #ffc628;
 }
 
-/* שימי זאת איפה שמוגדרות השורות של .start-form inputs */
+/* Put this where .start-form input rows are defined */
 .start-form input[type="text"],
 .start-form input[type="password"]{
   padding: 10px 12px;
