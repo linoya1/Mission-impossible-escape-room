@@ -1,42 +1,45 @@
+"""Flask app entrypoint, routes, and room progression enforcement."""
+
 from flask import Flask, render_template, redirect, url_for, request, session, jsonify, abort
 import os
 from backend.config import DevelopmentConfig
 
 # === DB ===
 from backend.db import db, init_db
-from backend.models import User, Progress  # <-- הוספנו Progress
+from backend.models import User, Progress  # Progress model for per-room tracking
 
 # === PROGRESS helpers ===
-from backend.progress import start_progress, mark_success, last_success_room  # פונקציות עזר
+from backend.progress import start_progress, mark_success, last_success_room
 
-# === Blueprints (קיים) ===
+# === Blueprints ===
 from backend.rooms.room1 import room1
 from backend.rooms.room2 import room2
 from backend.rooms.room3 import room3
 from backend.rooms.room4 import room4
 
 # app = Flask(__name__, static_folder="static")
-# app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")  # לשמירת מצב המשחק
+# app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")  # Session signing key
 app = Flask(__name__, static_folder="static")
 app.config.from_object(DevelopmentConfig)
-app.secret_key = app.config["SECRET_KEY"]  # לשמירת מצב המשחק
-# === חיבור מסד נתונים (קיים) ===
+app.secret_key = app.config["SECRET_KEY"]  # Session signing key
+# === Database wiring ===
 init_db(app)
 
-# יצירת טבלאות (מתוקן לשם המודול המלא כדי לעבוד גם כשהקובץ מורץ מהשורש)
+# Create tables at startup (imports all models into metadata)
 with app.app_context():
-    from . import models  # חשוב: טוען את כל המודלים (User, Progress)
+    from . import models
     db.create_all()
 
-# ------------------ הגדרות חדרים/סדר (PROGRESS) ------------------
-ORDER = ['room1', 'room2', 'room3', 'room4']   # עדכני לפי החדרים האמיתיים
+# ------------------ Room order for progression ------------------
+ORDER = ['room1', 'room2', 'room3', 'room4']   # Canonical progression order
 ROOM_IDS = [1, 2, 3, 4]
 
 def room_name_from_id(room_id: int) -> str:
+    """Map numeric room id to room name used in progress tracking."""
     return f'room{room_id}'
 
 def next_room_name(curr_room_name: str | None) -> str:
-    """אם אין עדיין חדר שעברנו (None) → room1, אחרת הבא לפי ORDER."""
+    """Compute the next allowed room name given the last successful room."""
     if not curr_room_name:
         return ORDER[0]
     try:
@@ -45,72 +48,74 @@ def next_room_name(curr_room_name: str | None) -> str:
         return ORDER[0]
     return ORDER[i + 1] if i < len(ORDER) - 1 else ORDER[-1]
 
+
 def allowed_room_for(uid: int) -> str:
-    """מהו החדר הבא שמותר למשתמש להיכנס אליו (למניעת קפיצות)?"""
-    last = last_success_room(uid)        # 'roomX' או None
+    """Return the next room a user may enter, preventing forward skips."""
+    last = last_success_room(uid)        # 'roomX' or None
     return next_room_name(last)
 
-# ------------------ תאימות ישנה (נשאר כמו שהיה) ------------------
+# ------------------ Legacy in-memory state (kept for compatibility) ------------------
 players = {}
 
-# ---------- דפי פתיחה / פרלוד (נשאר כמו שהיה) ----------
+# ---------- Landing and prelude ----------
 @app.route("/")
 def home():
     return render_template("index.html")
 
 @app.route("/start_game", methods=["POST"])
 def start_game():
-    # שם משתמש + סיסמה מהטופס
+    """Authenticate or create a user, then start the mission at the prelude."""
+    # Username + password from the form
     player_name = (request.form.get("player_name") or "").strip()
     password    = request.form.get("password") or ""
 
     if not player_name or not password:
         return render_template("index.html", error="Please enter a codename and passphrase.")
 
-    # מצא/צר משתמש במסד הנתונים
+    # Find or create user in the database
     user = User.query.filter_by(username=player_name).first()
     if user is None:
-        # הרשמה אוטומטית (אם לא רוצים - החליפו לשגיאה "User not found")
+        # Auto-register if not found
         user = User(username=player_name)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
     else:
-        # אימות סיסמה
+        # Verify password
         if not user.check_password(password):
             return render_template("index.html", error="Invalid passphrase. Try again.")
 
-    # שמירה ל-session (תאימות עם הקוד שהיה)
+    # Store session data (kept for compatibility)
     session["player_name"] = player_name
-    session["player_id"]   = player_name   # נשאר כפי שהיה אצלך
-    session["user_id"]     = user.id       # === PROGRESS: נוסיף user_id אמיתי לסשן
+    session["player_id"]   = player_name
+    session["user_id"]     = user.id
     players[session["player_id"]] = {"room": 1}
 
-    # חשוב: עוברים קודם ל־Prelude (חדר קדם עם זיהוי עין השומר)
+    # Start at the prelude room
     return redirect(url_for("prelude"))
 
 @app.route("/prelude", methods=["GET"])
 def prelude():
-    # prelude.html משתמש ב-session.get('player_name') להצגת השם
+    # prelude.html uses session.get('player_name') to render the codename
     return render_template("prelude.html")
 
-# אופציונלי: לוג/סטטיסטיקה מאירוע ההצלחה בפרלוד (נשאר כמו שהיה)
+# Optional: log prelude success events
 @app.route("/prelude/event", methods=["POST"])
 def prelude_event():
     data = request.get_json() or {}
     print("Prelude event:", data)
     return jsonify(status="ok")
 
-# ---------- מסך סיכום לשחקן (חדש) ----------
+# ---------- Player summary ----------
 @app.route('/me')
 def my_summary():
+    """Render a per-user mission summary using tracked progress rows."""
     if 'user_id' not in session:
         return redirect(url_for('home'))
     uid = session['user_id']
     rows = Progress.query.filter_by(user_id=uid).order_by(Progress.room).all()
-    # רשימת חדרים שעברו בהצלחה
+    # Rooms completed successfully
     succeeded = {r.room for r in rows if r.succeeded_at}
-    # השרת כבר מכיל ORDER = ['room1','room2','room3','room4']
     finished = all(room in succeeded for room in ORDER)
     items = []
     for r in rows:
@@ -123,30 +128,32 @@ def my_summary():
         })
 
     return render_template('game/summery.html', items=items, finished=finished)
-# ---------- חדרים (GET) ----------
+# ---------- Rooms (GET) ----------
 @app.route("/room/<int:room_id>")
 def enter_room(room_id):
+    """Gate room entry based on progress and start timing for the room."""
     if room_id not in ROOM_IDS:
         return redirect(url_for("home"))
 
-    # === PROGRESS: בדיקת הוגנות + התחלת מדידה ===
+    # === Progress: enforce order and start timing ===
     if 'user_id' in session:
         uid = session['user_id']
         requested = room_name_from_id(room_id)     # 'roomX'
-        allowed  = allowed_room_for(uid)           # החדר הבא שהמשתמש רשאי להיכנס אליו
+        allowed  = allowed_room_for(uid)           # Next allowed room
 
-        # לא לאפשר קפיצה קדימה (כן לאפשר אחורה/אותו חדר אם תרצי)
+        # Prevent forward skips; allow back/redo
         if ORDER.index(requested) > ORDER.index(allowed):
             return redirect(url_for("enter_room", room_id=int(allowed.replace('room', ''))))
 
-        # מתחילים למדוד חדר זה (אם זה ניסיון ראשון, ייקבע started_at; אחרת attempts++)
+        # Start timing for this room (first attempt sets started_at)
         start_progress(uid, requested)
 
     return render_template(f"room{room_id}.html")
 
-# ---------- סימון הצלחה לחדר (חדש, לזימון מה-Blueprints/JS) ----------
+# ---------- Room success (called by blueprints/JS) ----------
 @app.route("/room/<int:room_id>/success", methods=["POST", "GET"])
 def room_success(room_id):
+    """Mark room success, then route to next room or summary when finished."""
     if room_id not in ROOM_IDS:
         return redirect(url_for("home"))
     if 'user_id' not in session:
@@ -155,14 +162,14 @@ def room_success(room_id):
     uid = session['user_id']
     current_room_name = room_name_from_id(room_id)
 
-    # סוגרים מדידה של החדר הנוכחי
+    # Close timing for the current room
     mark_success(uid, current_room_name)
 
-    # אם זה החדר האחרון ב-ORDER => דף סיכום
+    # If last room, go to summary
     if current_room_name == ORDER[-1]:
         return redirect(url_for('my_summary'))
 
-    # אחרת: מתחילים למדוד את החדר הבא וממשיכים כרגיל
+    # Otherwise, start timing the next room and continue
     next_name = next_room_name(current_room_name)
     next_id   = int(next_name.replace('room', ''))
     if next_id != room_id:
@@ -170,7 +177,7 @@ def room_success(room_id):
 
     return redirect(url_for("enter_room", room_id=next_id))
 
-# ---------- רישום ה-Blueprint לכל החדרים (נשאר כמו שהיה) ----------
+# ---------- Register room blueprints ----------
 app.register_blueprint(room1)
 app.register_blueprint(room2)
 app.register_blueprint(room3)
@@ -181,3 +188,4 @@ app.register_blueprint(room4)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+

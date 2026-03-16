@@ -6,7 +6,7 @@
   <title>Submarine Detection</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
 
-  <!-- UI קטן להצגת התקדמות (משלים את ה-CSS הגלובלי) -->
+  <!-- Small HUD for progress display (complements global CSS) -->
   <style>
     .room2-hud{max-width:980px;margin:10px auto 0;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
     .meter{height:10px;background:#183244;border:1px solid #23485f;border-radius:999px;overflow:hidden}
@@ -63,7 +63,7 @@
 
       if (data.status === "success") {
   const btn = document.getElementById("go-room3");
-  btn.style.display = "inline-block"; // ה-href כבר מצביע ל-/room/2/success
+  btn.style.display = "inline-block"; // The href already points to /room/2/success
 }
 
     }
@@ -75,14 +75,14 @@
   </script>
 </head>
 
-<!-- עיצוב רקע דרמטי מופעל ע"י המחלקה הזו (מוגדרת ב-style.css) -->
+<!-- Dramatic background styling enabled by this class (defined in style.css) -->
 <body class="room--detect">
 
   <div class="room2-wrap">
     <h1 class="room2-title">Submarine Detection</h1>
     <p class="room2-sub">Look at the images below and determine if a submarine is present.</p>
 
-    <!-- בורר ביטחון + מד התקדמות -->
+    <!-- Confidence selector + progress meter -->
     <div class="room2-hud">
       <div class="mini">
         Confidence:
@@ -103,7 +103,7 @@
       <div id="msg" class="msg"></div>
     </div>
 
-    <!-- רשת התמונות (כל הקיימות + אפשר להוסיף חדשות) -->
+    <!-- Image grid (all current images; can add more) -->
     <div class="detect-grid">
       {% for image in images %}
         <div class="img-card">
@@ -116,14 +116,14 @@
       {% endfor %}
 </div>
 
-    <!-- אזור חשיפת המיקום הסודי -->
+    <!-- Secret location reveal area -->
     <div id="reveal" style="display:none; margin-top:24px;">
       <h2>Secret location found</h2>
       <img id="reveal-img" src="" alt="Submarine secret location" width="600">
     </div>
 
-    <!-- כפתור מעבר לחדר 3 (מוסתר עד הצלחה) -->
-<!-- לינק שעובר דרך /room/2/success כדי לשמור הצלחה ב-DB ואז לעבור לחדר 3 -->
+    <!-- Room 3 button (hidden until success) -->
+<!-- Link routes through /room/2/success to record DB progress, then go to Room 3 -->
 <p>
   <a id="go-room3"
      class="btn-next"
@@ -131,7 +131,7 @@
      style="display:none;">Continue to Room 3 »</a>
 </p>
 
-<!-- אופציונלי, נחמד למשתמש: -->
+<!-- Optional: link to summary for the player -->
 <p><a href="{{ url_for('my_summary') }}">My progress</a></p>
 
   </div>

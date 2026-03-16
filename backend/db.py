@@ -1,3 +1,4 @@
+"""Database setup and SQLAlchemy initialization helpers."""
 import os
 from flask_sqlalchemy import SQLAlchemy
 
@@ -8,6 +9,7 @@ DB_PATH = os.path.join(BASE_DIR, "instance", "game.db")
 
 
 def init_db(app):
+    """Configure the app's database URI and initialize SQLAlchemy."""
     uri = os.environ.get("DATABASE_URL", f"sqlite:///{DB_PATH}")
 
     if uri.startswith("postgres://"):

@@ -1,10 +1,10 @@
-# backend/progress.py
+"""Progress helpers for starting rooms and marking successful completion."""
 from datetime import datetime
 from .db import db
 from .models import Progress
 
 def start_progress(user_id: int, room: str) -> Progress:
-    """ מסמן התחלה (או ניסיון נוסף) לחדר. """
+    """Start or continue a room attempt, tracking start time and attempts."""
     row = Progress.query.filter_by(user_id=user_id, room=room).first()
     if not row:
         row = Progress(user_id=user_id, room=room, started_at=datetime.utcnow(), attempts=1)
@@ -17,7 +17,7 @@ def start_progress(user_id: int, room: str) -> Progress:
     return row
 
 def mark_success(user_id: int, room: str) -> Progress:
-    """ מסמן סיום מוצלח לחדר (פעם ראשונה בלבד). """
+    """Mark the first successful completion timestamp for a room."""
     row = Progress.query.filter_by(user_id=user_id, room=room).first()
     if not row:
         row = Progress(user_id=user_id, room=room, started_at=datetime.utcnow())
@@ -28,7 +28,7 @@ def mark_success(user_id: int, room: str) -> Progress:
     return row
 
 def last_success_room(user_id: int):
-    """ החדר האחרון שהמשתמש עבר בהצלחה (או None אם עדיין לא). """
+    """Return the most recently completed room name, or None if none."""
     row = Progress.query.filter(
         Progress.user_id == user_id,
         Progress.succeeded_at.isnot(None)

@@ -7,18 +7,18 @@
 </head>
 <body class="landing-index">
 
-  <!-- Hero: הבאנר העליון עם open4 -->
+  <!-- Hero: top banner with open4 -->
   <header class="hero-banner">
     <img
       src="{{ url_for('static', filename='images/open4.jpg') }}"
       alt="MISSION: IMPOSSIBLE — THE FINAL RECKONING"
       class="hero-img">
     <div class="hero-overlay">
-      <!-- אם תרצי כותרת/כפתור על הבאנר – אפשר להוסיף פה -->
+      <!-- Optional: add a title/button overlay here -->
     </div>
   </header>
 
-  <!-- כרטיס הטקסט הקיים (לקחתי את התוכן שהיה לך) -->
+  <!-- Main text card (original content) -->
   <section class="content card">
     <h1>Welcome to Impossible Mission</h1>
     <p>
@@ -54,9 +54,9 @@
 
   </section>
 
-  <!-- גלריה “תפזורת” -->
+  <!-- Image gallery grid -->
   <section class="mi-grid">
-    <!-- שימי כאן איזה תמונות שתרצי; הדוגמאות: -->
+    <!-- Add any images you want here; examples below: -->
     <figure class="mi-tile mi-tile--wide">
       <img src="{{ url_for('static', filename='images/open1.jpg') }}" alt="Ghost Protocol – Burj Khalifa">
     </figure>
@@ -75,7 +75,7 @@
     <figure class="mi-tile mi-tile--wide">
       <img src="{{ url_for('static', filename='images/open5.jpg') }}" alt="Ghost Protocol – Burj Khalifa">
     </figure>
-    <!-- להוסיף עוד:
+    <!-- Add more:
     <figure class="mi-tile"><img src="{{ url_for('static', filename='images/NAME.jpg') }}" alt=""></figure>
     <figure class="mi-tile mi-tile--tall"><img src="..." alt=""></figure>
     <figure class="mi-tile mi-tile--wide"><img src="..." alt=""></figure>
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const display = document.getElementById("timer-display");
 
   async function startSession() {
-    // בדיקת ולידציה בסיסית
+    // Basic form validation
     const name = document.getElementById("player_name").value.trim();
     const pass = document.getElementById("password").value;
     if (!name || !pass) {
@@ -97,10 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
 
-    // שליחת הטופס לשרת כדי לשמור סשן/לאמת סיסמה
+    // Submit the form so the server sets session/auth
     const fd = new FormData(form);
     const r = await fetch("/start_game", { method: "POST", body: fd, redirect: "follow" });
-    // אם השרת מחזיר HTML עם error, לא נתחיל טיימר. נבדוק ברמז גס:
+    // If the server returns HTML with an error, don't start the timer
     const text = await r.text();
     if (text.includes("Invalid passphrase") || text.includes("Please enter")) {
       display.textContent = " Invalid passphrase. Try again.";

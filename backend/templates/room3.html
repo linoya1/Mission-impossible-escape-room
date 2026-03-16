@@ -226,14 +226,14 @@ a.btn-next:active { transform: translateY(0); }
       </p>
 
       <p>
-  <!-- עובר דרך /room/3/success כדי לשמור הצלחה ב-DB ואז השרת מפנה ל-/room/4 -->
+  <!-- Passes through /room/3/success to record the success in the database, then the server redirects to /room/4 -->
   <a id="go-room4"
      class="btn-next"
      href="{{ url_for('room_success', room_id=3) }}"
      style="display:none;">Proceed to Room 4 »</a>
 </p>
 
-<!-- אופציונלי: קישור למסך הסיכום -->
+<!-- Optional: link to the summary page -->
 <p><a href="{{ url_for('my_summary') }}">My progress</a></p>
 
     </div>

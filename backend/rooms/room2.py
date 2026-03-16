@@ -1,32 +1,31 @@
+"""Room 2 blueprint: submarine identification puzzle with Bayesian scoring."""
 import numpy as np
 from flask import Blueprint, render_template, request, jsonify, url_for, session
 
 room2 = Blueprint('room2', __name__)
 
-# ===== הגדרות נתונים בסיסיות כפי שהיו + הוספת 3 תמונות חדשות =====
+# ===== Base image set with additional distractors =====
 all_images = [
     "image7.jpg", "image8.jpg", "image9.jpg",
     "image10.jpg", "image11.jpg", "image12.jpg",
-    # חדשות:
-    "sub_surface.jpg",      # <- לא צוללת (0)
-    "sub_corridor.jpg",     # <- לא צוללת (0)
-    "sub_close_up.jpg",     # <- לא צוללת (0)
+    "sub_surface.jpg",      # not a submarine (0)
+    "sub_corridor.jpg",     # not a submarine (0)
+    "sub_close_up.jpg",     # not a submarine (0)
 ]
 
-# אילו תמונות נחשבות "זוהתה צוללת" (האמת הקרקעית)
+# Ground-truth submarine images
 correct_images = {
     "image7.jpg", "image8.jpg", "image9.jpg", "image12.jpg",
 }
 
-# אילו תמונות אינן צוללת
+# Non-submarine images
 wrong_images = {
     "image10.jpg", "image11.jpg",
-    "sub_corridor.jpg",     # החדשות שנחשבות 0
+    "sub_corridor.jpg",
     "sub_close_up.jpg", "sub_surface.jpg",
 }
 
-# שיוך קטגוריה אחת לכל תמונה לצורך "כיסוי" (coverage)
-# (המודל שלך מסתכל על קטגוריה אחת לתמונה, וזה בסדר.)
+# One category per image for coverage checks
 CATEGORIES = {
     "image7.jpg":  "open_sea",
     "image8.jpg":  "night_ops",
@@ -35,13 +34,12 @@ CATEGORIES = {
     "image11.jpg": "river",
     "image12.jpg": "underwater",
 
-    # חדשות:
     "sub_surface.jpg":  "open_sea",
     "sub_corridor.jpg": "night_ops",
     "sub_close_up.jpg": "harbor",
 }
 
-# דרוג קושי (1=קל, 2=בינוני, 3=קשה) — ערכי ברירת מחדל סבירים
+# Difficulty ratings: 1=easy, 2=medium, 3=hard
 DIFFICULTY = {
     "image7.jpg":  2,
     "image8.jpg":  3,
@@ -50,30 +48,29 @@ DIFFICULTY = {
     "image11.jpg": 2,
     "image12.jpg": 1,
 
-    # חדשות:
     "sub_surface.jpg":  2,
     "sub_corridor.jpg": 2,
     "sub_close_up.jpg": 2,
 }
 
-# ===== פרמטרים של המשימה =====
-REQUIRED_MIN_SELECTIONS = 3   # מינימום בחירות "זיהיתי צוללת" לפני בחינת מעבר
-REQUIRED_COVERAGE = 2         # לפחות N קטגוריות שונות מבין הבחירות
-SUCCESS_THRESHOLD = 0.75      # סף הצלחה (posterior)
-MAX_ATTEMPTS = 8              # מגבלה כללית לניסיונות (כל לחיצה = ניסיון)
-STREAK_STEP = 2               # כל רצף של 2 פגיעות = בונוס קטן
+# ===== Mission parameters =====
+REQUIRED_MIN_SELECTIONS = 3   # Minimum correct picks before checking pass
+REQUIRED_COVERAGE = 2         # At least N distinct categories among correct picks
+SUCCESS_THRESHOLD = 0.75      # Posterior success threshold
+MAX_ATTEMPTS = 8              # Max attempts per session
+STREAK_STEP = 2               # Every N correct hits adds a small bonus
 
-# Prior לבטא (מאוזן־עדין)
+# Beta prior (balanced)
 ALPHA0 = 1.5
 BETA0  = 1.5
 
-# ===== עזר =====
+# ===== Helpers =====
 def softmax(scores):
     exp_scores = np.exp(scores - np.max(scores))
     return exp_scores / exp_scores.sum()
 
 def _init_state():
-    """יוצר מצב סשן אם לא קיים."""
+    """Initialize room state in session for the current player."""
     s = session.get("room2_state")
     if s is None:
         s = {
@@ -94,6 +91,7 @@ def _cat_for(img: str) -> str:
     return CATEGORIES.get(img, "misc")
 
 def _update_state(image: str, label: int, confidence: float):
+    """Append a labeled selection and update attempts/streak counters."""
     s = _init_state()
     sel = {
         "image": image,
@@ -106,7 +104,7 @@ def _update_state(image: str, label: int, confidence: float):
     s["selections"].append(sel)
     s["attempts"] += 1
 
-    # streak מתעדכן רק על פגיעה "חיובית נכונה"
+    # Streak counts only correct positive hits
     if sel["truth"] == 1 and sel["label"] == 1:
         s["streak"] += 1
     else:
@@ -116,20 +114,14 @@ def _update_state(image: str, label: int, confidence: float):
     return s
 
 def _posterior_success(selections):
-    """
-    Beta-Bernoulli posterior עם משקלי קושי (diff) ו-confidence.
-    - diff: 1->1.0, 2->1.2, 3->1.5
-    - confidence: 0..1 משפיע 0.6..1.0
-    - טעות חיובית (סימן 1 על תמונה שגויה) מחמירה מעט את beta
-    - streak bonus קטן בתום הלולאה
-    """
+    """Compute a weighted Beta-Bernoulli posterior success score."""
     alpha = ALPHA0
     beta = BETA0
 
     for sel in selections:
         w_diff = {1: 1.0, 2: 1.2, 3: 1.5}.get(sel["diff"], 1.0)
         conf = max(0.0, min(1.0, float(sel.get("confidence", 0.7))))
-        w = w_diff * (0.6 + 0.4 * conf)  # 0.6..1.0 כפול משקל קושי
+        w = w_diff * (0.6 + 0.4 * conf)  # 0.6..1.0 scaled by difficulty
 
         is_hit  = 1 if (sel["truth"] == 1 and sel["label"] == 1) else 0
         is_miss = 1 if (sel["truth"] == 0 and sel["label"] == 1) else 0
@@ -137,9 +129,9 @@ def _posterior_success(selections):
         if is_hit:
             alpha += 1.0 * w
         if is_miss:
-            beta  += 1.2 * w   # מעט מחמיר ל-FP
+            beta  += 1.2 * w   # Mild penalty for false positives
 
-    # bonus על רצף פגיעות בקצה
+    # Small bonus for trailing streak of correct hits
     streak_hits = 0
     for sel in reversed(selections):
         if sel["truth"] == 1 and sel["label"] == 1:
@@ -155,18 +147,20 @@ def _coverage_ok(selections):
     cats = {sel["cat"] for sel in selections if sel["label"] == 1 and sel["truth"] == 1}
     return (len(cats) >= REQUIRED_COVERAGE, cats)
 
-# ===== ראוטים =====
+# ===== Routes =====
 @room2.route("/room/2")
 def show_room2():
-    session.pop("room2_state", None)  # ← איפוס מצב החדר בכניסה חדשה
+    """Render the Room 2 puzzle and reset per-session state."""
+    session.pop("room2_state", None)  # reset state on fresh entry
     _init_state()
     return render_template("room2.html", images=all_images)
 
 @room2.route("/room2/submit", methods=["POST"])
 def submit_label():
+    """Handle a labeled image selection and return progress feedback."""
     data = request.get_json() or {}
     image = data.get("image")
-    label = int(data.get("label", 0))      # 1 = זוהתה צוללת, 0 = לא
+    label = int(data.get("label", 0))      # 1 = submarine, 0 = not
     confidence = float(data.get("confidence", 0.7))
 
     if image not in all_images:
@@ -174,11 +168,11 @@ def submit_label():
 
     state = _update_state(image, label, confidence)
 
-    # חישובי התקדמות
+    # Progress calculations
     p_succ = _posterior_success(state["selections"])
     coverage_ok, cats = _coverage_ok(state["selections"])
 
-    # בחירות שסומנו 1 (לאו דווקא נכונות)
+    # All picks labeled as positive (not necessarily correct)
     chosen_count = len([s for s in state["selections"] if s["label"] == 1])
     correct_chosen = len([s for s in state["selections"] if s["label"] == 1 and s["truth"] == 1])
 
@@ -231,6 +225,6 @@ def submit_label():
 
 @room2.route("/room2/reset", methods=["POST"])
 def reset_room2():
-    """מאפס מצב החדר (לסשן הנוכחי)."""
+    """Clear the current session's Room 2 state."""
     session.pop("room2_state", None)
     return jsonify({"status": "ok", "message": "Room 2 state cleared."})

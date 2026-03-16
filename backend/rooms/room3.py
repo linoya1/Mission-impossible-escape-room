@@ -1,3 +1,4 @@
+"""Room 3 blueprint: trajectory anomaly scoring and classification."""
 from flask import Blueprint, render_template, request, jsonify
 import math
 
@@ -5,12 +6,14 @@ room3 = Blueprint('room3', __name__)
 
 @room3.route("/room/3")
 def show_room3():
+    """Render the Room 3 puzzle page."""
     return render_template("room3.html")
 
 
-# ====== הוספה חדשה: API לחישוב anomaly score ======
+# ====== API for anomaly scoring ======
 
 def _curvature2d(x1, y1, x2, y2, x3, y3):
+    """Compute the turning angle between three 2D points."""
     a1 = math.atan2(y2 - y1, x2 - x1)
     a2 = math.atan2(y3 - y2, x3 - x2)
     d = abs(a2 - a1)
@@ -19,6 +22,7 @@ def _curvature2d(x1, y1, x2, y2, x3, y3):
     return d  # 0..pi
 
 def _score_trajectory(points):
+    """Compute the anomaly score for a trajectory based on curvature and jerk."""
     if len(points) < 3:
         return 0.0
     sum_curv, max_jerk = 0.0, 0.0
@@ -42,6 +46,7 @@ def _score_trajectory(points):
 
 @room3.route("/api/anomaly/score", methods=["POST"])
 def api_anomaly_score():
+    """Return a scalar anomaly score for a trajectory."""
     data = request.get_json(silent=True) or {}
     traj = data.get("trajectory") or []
     clean = [p for p in traj if isinstance(p, list) and len(p) == 3]
@@ -81,11 +86,12 @@ def _features(points):
     return [curv_norm, jerk_norm, sp_norm]
 
 def _euclid(a, b):
+    """Compute the Euclidean distance between two points in feature space."""
     return math.sqrt(sum((x - y) ** 2 for x, y in zip(a, b)))
 
 @room3.route("/api/anomaly/save", methods=["POST"])
 def api_anomaly_save():
-    """Save current trajectory as a Russian hostile prototype in session."""
+    """Save current trajectory as a hostile prototype in session."""
     data = request.get_json(silent=True) or {}
     traj = data.get("trajectory") or []
     clean = [p for p in traj if isinstance(p, list) and len(p) == 3]
@@ -98,7 +104,7 @@ def api_anomaly_save():
 
 @room3.route("/api/anomaly/classify", methods=["POST"])
 def api_anomaly_classify():
-    """Classify trajectory using anomaly score + nearest saved hostile vector."""
+    """Classify trajectory using anomaly score + nearest saved prototype."""
     data = request.get_json(silent=True) or {}
     traj = data.get("trajectory") or []
     clean = [p for p in traj if isinstance(p, list) and len(p) == 3]
@@ -107,7 +113,7 @@ def api_anomaly_classify():
     vec = _features(clean)
     bank = session.get("hostile_prototypes", [])
 
-    # rule: hostile if anomaly high OR close to any saved hostile prototype
+    # Hostile if anomaly high or close to a saved hostile prototype
     is_hostile_by_score = score >= 0.70
     nearest = None
     dist = None
@@ -115,7 +121,7 @@ def api_anomaly_classify():
         dists = [_euclid(vec, v) for v in bank]
         dist = min(dists)
         nearest = bank[dists.index(dist)]
-    # threshold ~0.35 works ok for our 3D feature (heuristic)
+    # Threshold ~0.35 works for our 3D feature vector (heuristic)
     is_hostile_by_similarity = (dist is not None and dist <= 0.35)
 
     hostile = bool(is_hostile_by_score or is_hostile_by_similarity)

@@ -1,14 +1,14 @@
 import sqlite3
 
-# להתחבר ל-DB
+# Connect to the local SQLite database
 conn = sqlite3.connect("backend/instance/game.db")
 cursor = conn.cursor()
 
-# לראות את כל הטבלאות
+# List all tables
 cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
 print("Tables:", cursor.fetchall())
 
-# לדוגמה: לשלוף את כל המשתמשים
+# Example: fetch all users
 try:
     cursor.execute("SELECT * FROM users;")
     print("Users:", cursor.fetchall())

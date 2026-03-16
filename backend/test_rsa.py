@@ -1,11 +1,11 @@
 import rsa_cpp
 
-# פרמטרי ה-RSA של חדר 4
+# RSA parameters for Room 4
 n, e, d = 3233, 17, 2753
 
-# נצפין את התו 'A' (65) ואז נפענח
+# Encrypt the character 'A' (65) and then decrypt it
 msg = 65                          # 'A'
-cipher = [pow(msg, e, n)]         # צפוי: [2790]
+cipher = [pow(msg, e, n)]         # expected: [2790]
 dec = rsa_cpp.rsa_decrypt_bytes(cipher, d, n)
 
-print("cipher:", cipher, "| decrypted:", dec)  # צריך להדפיס: cipher: [2790] | decrypted: [65]
+print("cipher:", cipher, "| decrypted:", dec)  # expected: cipher: [2790] | decrypted: [65]

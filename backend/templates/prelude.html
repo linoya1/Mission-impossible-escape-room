@@ -82,10 +82,10 @@
     }
   </style>
 
-  <!-- טעינת face-api.js לפני הסקריפט שלנו -->
+  <!-- Load face-api.js before our script -->
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js" crossorigin="anonymous"></script>
 
-  <!-- מזריק ל-JS את הנתיב למודלים -->
+  <!-- Inject model path into JS -->
   <script>
     window.FACE_MODELS = "{{ url_for('static', filename='models') }}";
   </script>

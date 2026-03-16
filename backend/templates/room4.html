@@ -20,7 +20,7 @@
     <h2 class="title" style="font-size:28px">1) LIDAR scan — gather objects</h2>
 
     <div class="lidar-wrap">
-      <!-- שמאל: קנבס/סונאר -->
+      <!-- Left: canvas/sonar -->
       <div class="panel">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
           <div id="led" class="led"></div>
@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      <!-- ימין: אובייקטים עם תמונות -->
+      <!-- Right: objects with images -->
       <div class="panel">
         <div style="margin-bottom:10px"><span class="pill">Select any objects you “scanned” in the bay:</span></div>
         <div class="objects">
@@ -113,14 +113,14 @@
       <p>Decrypted (symbols): <code id="sym"></code></p>
       <p>Decoded (IMF device): <code id="dec"></code></p>
       <p id="status"></p>
-       <!-- לינק שסוגר חדר 4 דרך השרת (ישמר progress ואז יעביר ל /me) -->
+       <!-- Link completes Room 4 via the server (records progress, then /me) -->
       <p>
         <a id="finish" class="btn-next" href="{{ url_for('room_success', room_id=4) }}" style="display:none;">
           Finish mission »
         </a>
       </p>
 
-      <!-- אופציונלי: קישור לסיכום -->
+      <!-- Optional: link to summary -->
       <p><a href="{{ url_for('my_summary') }}">My progress</a></p>
     </div>
   </div>
@@ -152,7 +152,7 @@
       return r.json();
     }
 
-    // ציור סונאר/עומק
+    // Draw sonar/depth
     (function(){
       const canvas = document.getElementById('lidarCanvas');
       const ctx = canvas.getContext('2d');
@@ -199,7 +199,7 @@
         scanOut.textContent = 'objects: ' + (data.objects.join(', ') || '—');
         cipherEl.textContent = '[' + data.cipher.join(', ') + ']';
 
-        // render key options (ניתן להחליף בחירה כמה שרוצים)
+        // Render key options (can change selection any time)
         keysEl.innerHTML = '';
         data.key_options.forEach(k => {
           const el = document.createElement('label');
